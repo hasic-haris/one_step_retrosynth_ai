@@ -16,4 +16,4 @@ Artificial Intelligence approach for one step chemical retrosynthesis.
 * tensorflow: 1.12.0
 
 ### Contact
-For any questions and inquiries please feel free to [contact](hasic@cb.cs.titech.ac.jp) the authors.
+For any questions and inquiries please feel free to [contact](mailto:hasic@cb.cs.titech.ac.jp) the authors.
