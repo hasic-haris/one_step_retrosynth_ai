@@ -1,8 +1,8 @@
 {
   "dataset_config":
   {
-    "raw_dataset_path": "D:/Datasets/coley50k_dataset/data_processed.csv",
-    "output_folder": "D:/Datasets/osra_output/",
+    "raw_dataset": "/data/hhasic/input/data_processed.csv",
+    "output_folder": "/data/hhasic/output/",
 
     "num_folds": 5,
     "validation_split": 0.1,
@@ -20,11 +20,6 @@
 
   "model_config":
   {
-    "fixed_model": 0,
-    "input_fp_specs": ["hsfp_2_2_1024"],
-    "fold_num": 1,
-    "batch_sizes": [16, 32, 64, 128, 256],
-    "learning_rates": [0.0005, 0.001, 0.00146],
-    "dropout_values": [[0.2], [0.33], [0.5]]
+    "fixed_model": 0
   }
 }

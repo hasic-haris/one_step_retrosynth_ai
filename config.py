@@ -6,7 +6,7 @@ from typing import NamedTuple, Optional
 class DatasetsConfig(NamedTuple):
 
     # Dataset paths information.
-    raw_dataset_path: str
+    raw_dataset: str
     output_folder: str
 
     # The n-fold cross-validation parameters.
@@ -18,7 +18,7 @@ class DatasetsConfig(NamedTuple):
     final_classes: list
 
 
-class FingerprintConfig(NamedTuple):
+class DescriptorConfig(NamedTuple):
 
     similarity_search: dict
     model_training: list
@@ -26,13 +26,14 @@ class FingerprintConfig(NamedTuple):
 
 class ModelConfig(NamedTuple):
 
-    similarity_search: dict
-    model_training: list
+    fixed_model: int
 
 
 class FullConfig(NamedTuple):
-    datasets: DatasetsConfig
-    fp_config: FingerprintConfig
+
+    dataset_config: DatasetsConfig
+    descriptor_config: DescriptorConfig
+    model_config: ModelConfig
 
     @classmethod
     def load(cls, file_path: Optional[str] = None) -> "FullConfig":
@@ -45,8 +46,10 @@ class FullConfig(NamedTuple):
         with open(file_path) as read_handle:
             settings = json.load(read_handle)
 
-            if "datasets" not in settings or "fp_config" not in settings:
+            if "dataset_config" not in settings or "descriptor_config" not in settings or \
+                    "model_config" not in settings:
                 raise ValueError("Mandatory setting groups are missing from the configuration file.")
 
-            return cls(datasets=DatasetsConfig(**settings["datasets"]),
-                       fp_config=FingerprintConfig(**settings["fp_config"]))
+            return cls(dataset_config=DatasetsConfig(**settings["dataset_config"]),
+                       descriptor_config=DescriptorConfig(**settings["descriptor_config"]),
+                       model_config=ModelConfig(**settings["model_config"]))

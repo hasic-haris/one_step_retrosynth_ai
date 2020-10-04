@@ -29,7 +29,7 @@ def generate_unique_compound_pools(args):
     reactant_reaction_class, product_reaction_class = [], []
 
     # Read the raw original chemical reaction dataset.
-    raw_dataset = pd.read_csv(args.datasets.raw_dataset_path)
+    raw_dataset = pd.read_csv(args.dataset_config.raw_dataset)
 
     # Iterate through the chemical reaction entries and generate unique canonical SMILES reactant and product pools.
     # Reagents are skipped in this research.
@@ -94,15 +94,15 @@ def generate_unique_compound_pools(args):
 
     for uqr_ind, uq_reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles),
                                      desc="Generating reactant compound fingerprints"):
-        ecfp_1024.append(construct_ecfp(uq_reactant, radius=args.fp_config.similarity_search["radius"],
-                                        bits=args.fp_config.similarity_search["bits"]))
+        ecfp_1024.append(construct_ecfp(uq_reactant, radius=args.descriptor_config.similarity_search["radius"],
+                                        bits=args.descriptor_config.similarity_search["bits"]))
 
     print("Saving the processed reactant compound data...", end="")
 
     # Store all of the generated reactant fingerprints in a .pkl file.
     pd.DataFrame({"mol_id": list(range(0, len(reactant_pool_smiles))), "canonical_smiles": reactant_pool_smiles,
                   "mol_object": reactant_pool_mol, "ecfp_1024": ecfp_1024, "reaction_class": reactant_reaction_class}).\
-        to_pickle(args.datasets.output_folder + "unique_reactants_pool.pkl")
+        to_pickle(args.dataset_config.output_folder + "unique_reactants_pool.pkl")
 
     print("done.")
 
@@ -111,15 +111,15 @@ def generate_unique_compound_pools(args):
 
     for uqp_ind, uq_product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles),
                                     desc="Generating product compound fingerprints"):
-        ecfp_1024.append(construct_ecfp(uq_product, radius=args.fp_config.similarity_search["radius"],
-                                        bits=args.fp_config.similarity_search["bits"]))
+        ecfp_1024.append(construct_ecfp(uq_product, radius=args.descriptor_config.similarity_search["radius"],
+                                        bits=args.descriptor_config.similarity_search["bits"]))
 
     print("Saving the processed product compound data...", end="")
 
     # Store all of the generated product fingerprints in a .pkl file.
     pd.DataFrame({"mol_id": list(range(0, len(product_pool_smiles))), "canonical_smiles": product_pool_smiles,
                   "mol_object": product_pool_mol, "ecfp_1024": ecfp_1024, "reaction_class": product_reaction_class}).\
-        to_pickle(args.datasets.output_folder + "unique_products_pool.pkl")
+        to_pickle(args.dataset_config.output_folder + "unique_products_pool.pkl")
 
     print("done.")
 
@@ -183,7 +183,7 @@ def expand_reaction_dataset(args):
         reaction SMILES and reaction class are stored, respectively."""
 
     # Read the raw chemical reaction dataset and rename the fetched columns.
-    raw_dataset = pd.read_csv(args.datasets.raw_dataset_path)[["id", "rxn_smiles", "class"]]
+    raw_dataset = pd.read_csv(args.dataset_config.raw_dataset)[["id", "rxn_smiles", "class"]]
     raw_dataset.columns = ["patent_id", "reaction_smiles", "reaction_class"]
 
     # Create new columns to store the id's of the unique reactant and product molecules.
@@ -207,9 +207,9 @@ def expand_reaction_dataset(args):
     raw_dataset["reactants_non_reactive_fps"], raw_dataset["products_non_reactive_fps"] = None, None
 
     # Read the previously generated unique molecule pools.
-    reactant_pool = pd.read_pickle(args.datasets.output_folder +
+    reactant_pool = pd.read_pickle(args.dataset_config.output_folder +
                                    "unique_reactants_pool.pkl")["canonical_smiles"].values.tolist()
-    product_pool = pd.read_pickle(args.datasets.output_folder +
+    product_pool = pd.read_pickle(args.dataset_config.output_folder +
                                   "unique_products_pool.pkl")["canonical_smiles"].values.tolist()
 
     # Iterate through all of the reactions and generate their unique molecule mapping for easier reactant retrieval in
@@ -220,7 +220,7 @@ def expand_reaction_dataset(args):
         # Extract the needed values from the reaction SMILES string.
         ruqmm, rrsm, rrso, rrsa, rrsf, rnsm, rnso, rnsa, rnsf, puqmm, prsm, prso, prsa, prsf, pnsm, pnso, pnsa, pnsf = \
             extract_relevant_information(row["reaction_smiles"], reactant_pool, product_pool,
-                                         args.fp_config.similarity_search)
+                                         args.descriptor_config.similarity_search)
 
         # Assign the extracted values to the data frame.
         raw_dataset.at[row_ind, "reactants_uq_mol_maps"] = ruqmm
@@ -250,8 +250,8 @@ def expand_reaction_dataset(args):
     print("Saving the generated compound data...", end="")
 
     # Save the final reaction dataset as in .pkl or .csv format.
-    raw_dataset.to_pickle(args.datasets.output_folder + "final_reaction_dataset.pkl")
-    # raw_dataset.to_csv(args.datasets.output_folder + "final_reaction_dataset.csv", index=False)
+    raw_dataset.to_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
+    # raw_dataset.to_csv(args.dataset_config.output_folder + "final_reaction_dataset.csv", index=False)
 
     print("done.")
 
@@ -260,18 +260,19 @@ def generate_dataset_splits(args):
     """ Generates training and test splits for the n-fold cross validation process in the ratio 80:20. """
 
     # Read the raw chemical reaction dataset.
-    raw_dataset = pd.read_pickle(args.datasets.output_folder + "final_reaction_dataset.pkl")
-    folds = [[] for _ in range(args.datasets.num_folds)]
+    raw_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
+    folds = [[] for _ in range(args.dataset_config.num_folds)]
 
     for cls in np.unique(raw_dataset["reaction_class"].values):
         # Select the subset of data with the respective class label.
         class_subset = raw_dataset.loc[raw_dataset["reaction_class"] == cls]
 
         # Shuffle this subset with a specified seed value.
-        class_subset = class_subset.sample(frac=1, random_state=args.datasets.random_seed)
+        class_subset = class_subset.sample(frac=1, random_state=args.dataset_config.random_seed)
 
         # Split the subset into multiple folds and save the indices of the rows.
-        for fold_index, current_fold in enumerate(np.array_split(class_subset.index.values, args.datasets.num_folds)):
+        for fold_index, current_fold in enumerate(np.array_split(class_subset.index.values,
+                                                                 args.dataset_config.num_folds)):
             folds[fold_index].extend(current_fold.tolist())
 
     # Generate training and validation data and save all of the datasets.
@@ -279,14 +280,15 @@ def generate_dataset_splits(args):
         print("Generating data for fold {}...".format(fold_index + 1), end="")
 
         # If a fold directory does nto exist for a specific fold, create it.
-        directory_path = args.datasets.output_folder + "fold_{}/".format(fold_index + 1)
+        directory_path = args.dataset_config.output_folder + "fold_{}/".format(fold_index + 1)
 
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
         # Split the remaining indices into training and validation sets.
         training_indices = set(raw_dataset.index.values).difference(test_indices)
-        validation_indices = random.sample(training_indices, k=round(len(raw_dataset) * args.datasets.validation_split))
+        validation_indices = random.sample(training_indices,
+                                           k=round(len(raw_dataset) * args.dataset_config.validation_split))
         training_indices = list(training_indices.difference(validation_indices))
 
         # Save all of the datasets for each respective fold.
@@ -417,13 +419,13 @@ def generate_fingerprint_datasets(args):
     """ Generates fingerprint representations for all of the previously constructed data splits. """
 
     # Iterate through all of the generated 'n-fold' folders.
-    for directory_name in os.listdir(args.datasets.output_folder):
+    for directory_name in os.listdir(args.dataset_config.output_folder):
         if "fold" in directory_name:
             # Create folder for the type of fingerprints dataset which is specified in the input parameters.
-            fold_dir_path = args.datasets.output_folder + directory_name + "/"
+            fold_dir_path = args.dataset_config.output_folder + directory_name + "/"
 
             # Create folders for all of the fingerprint configurations.
-            for fp_config in args.fp_config.model_training:
+            for fp_config in args.descriptor_config.model_training:
                 if not os.path.exists(fold_dir_path + fp_config["folder_name"]):
                     os.makedirs(fold_dir_path + fp_config["folder_name"])
 
@@ -432,8 +434,8 @@ def generate_fingerprint_datasets(args):
                 if file_name.endswith(".pkl"):
                     curr_dataset = pd.read_pickle(fold_dir_path + file_name)
 
-                    reactive_fps = [[] for _ in range(0, len(args.fp_config.model_training))]
-                    non_reactive_fps = [[] for _ in range(0, len(args.fp_config.model_training))]
+                    reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
+                    non_reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
                     mc_lab, row_ctr = [], 0
 
                     # Iterate through all of the rows of each dataset.
@@ -442,14 +444,14 @@ def generate_fingerprint_datasets(args):
 
                         # Fetch the reactive and non-reactive substructures from the products of this reaction.
                         r_fps, nr_fps = generate_fps_from_reaction_products(row["reaction_smiles"],
-                                                                            args.fp_config.model_training)
+                                                                            args.descriptor_config.model_training)
 
                         # Generate multi-class labels because they are the same for every fingerprint.
-                        mc_lab.extend(np.array([encode_one_hot(row["reaction_class"], args.datasets.final_classes), ]
-                                               * len(r_fps[0])))
+                        mc_lab.extend(np.array([encode_one_hot(row["reaction_class"],
+                                                               args.dataset_config.final_classes), ] * len(r_fps[0])))
 
                         # Iterate through all of the specified configurations.
-                        for fpc_ind, fp_config in enumerate(args.fp_config.model_training):
+                        for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
                             # Append the reactive data and an equal amount of multi-class labels for the configuration.
                             reactive_fps[fpc_ind].extend(r_fps[fpc_ind])
                             # Append the non-reactive data for the configuration.
@@ -466,7 +468,7 @@ def generate_fingerprint_datasets(args):
                         row_ctr += 1
 
                     # Save the reactive data and the labels, as well as the rest of the non-reactive data.
-                    for fpc_ind, fp_config in enumerate(args.fp_config.model_training):
+                    for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
                         # Save the reactive data.
                         save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name, "r",
                                                   "pkl", reactive_fps[fpc_ind])
@@ -484,7 +486,7 @@ def generate_fingerprint_datasets(args):
                         gc.collect()
 
                     # Finally, filter out the top-n frequent non-reactive fingerprints for each configuration.
-                    for fpc_ind, fp_config in enumerate(args.fp_config.model_training):
+                    for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
                         process_non_reactive_fingerprints(fold_dir_path + fp_config["folder_name"], fp_config,
                                                           file_name, "nr_", "pkl")
 
@@ -493,9 +495,9 @@ def create_final_fingerprint_datasets(args):
     """ Aggregates the reactive and non-reactive parts to create the final input dataset for the network. """
 
     # Iterate through all of the generated 'n-fold' folders.
-    for fold_dir in os.listdir(args.datasets.output_folder):
+    for fold_dir in os.listdir(args.dataset_config.output_folder):
         if "fold" in fold_dir:
-            fold_dir_path = args.datasets.output_folder + fold_dir + "/"
+            fold_dir_path = args.dataset_config.output_folder + fold_dir + "/"
 
             # Iterate through all of the generated dataset variant folders in the current fold.
             for data_dir in os.listdir(fold_dir_path):
@@ -519,7 +521,7 @@ def create_final_fingerprint_datasets(args):
                                 r_mc = pd.read_pickle(data_dir_path + file_name).values
 
                         # Filter the negative samples to the amount of the highest populated positive class.
-                        print("Filtering negative samples for the {} set...".format(dataset_split))
+                        print("Filtering negative samples for the {} set...".format(dataset_split), end="")
                         nr_samples = sorted(Counter([np.argmax(r) for r in r_mc]).values(), reverse=True)[0]
                         nr_fp = nr_fp[get_n_most_frequent_rows(nr_fp, nr_samples)]
 
@@ -528,14 +530,22 @@ def create_final_fingerprint_datasets(args):
                         nr_mc = np.full((len(nr_fp), 11), 0, np.float)
                         nr_mc[:, 0] = 1.
 
+                        print("done.")
+
                         # Aggregate the reactive and non-reactive fingerprints.
-                        print("Aggregating and saving the data for the {} set...".format(dataset_split))
+                        print("Aggregating and saving the data for the {} set...".format(dataset_split), end="")
+
                         x_fp = np.vstack((r_fp, nr_fp))
                         pd.to_pickle(pd.DataFrame(x_fp), data_dir_path + "x_{}.pkl".format(dataset_split))
 
+                        print("done.")
+
                         # Aggregate the reactive and non-reactive labels.
-                        print("Aggregating and saving the labels for the {} set...".format(dataset_split))
+                        print("Aggregating and saving the labels for the {} set...".format(dataset_split), end="")
+
                         y_bc = np.vstack((r_bc, nr_bc))
                         pd.to_pickle(pd.DataFrame(y_bc), data_dir_path + "y_bc_{}.pkl".format(dataset_split))
                         y_mc = np.vstack((r_mc, nr_mc))
                         pd.to_pickle(pd.DataFrame(y_mc), data_dir_path + "y_mc_{}.pkl".format(dataset_split))
+
+                        print("done.")
