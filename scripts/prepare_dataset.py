@@ -16,7 +16,7 @@ from data_methods.dataset_construction import create_final_fingerprint_datasets
 config = FullConfig.load()
 
 print("\nStep 1/5: Generate unique compound pools for the reactants and products separately.\n")
-# generate_unique_compound_pools(config)
+generate_unique_compound_pools(config)
 
 print("\nStep 2/5: Expand the original dataset with additional, useful information.\n")
 # NOTE: This step will produce a lot of RDKit warnings. They can be ignored since I didn't manage to turn them off.
