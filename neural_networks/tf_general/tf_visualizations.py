@@ -1,8 +1,9 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 28th, 2020
-Description: This file contains TensorFlow 1.12 neural network visualization functions for the TensorBoard tool.
+Description: This file contains the TensorFlow 1.12 neural network visualization functions for the TensorBoard tool.
 """
+
 import re
 import itertools
 import tfplot
@@ -17,10 +18,9 @@ from neural_networks.tf_general.tf_scores import generate_confusion_matrices
 from neural_networks.tf_general.tf_scores import calculate_roc_values, calculate_prc_values, average_roc_prc_values
 
 
-# Done: 100%
-def plot_confusion_matrix(correct_out, predicted_out, class_labels, out_type="single", normalize=False, mode="numerical",
-                          return_type="tf_summary", tensor_name="confusion_matrix/img"):
-    """ Plot numerical or percentage confusion matrices. """
+def plot_confusion_matrix(correct_out, predicted_out, class_labels, out_type="single", normalize=False,
+                          mode="numerical", return_type="tf_summary", tensor_name="confusion_matrix/img"):
+    """ Plots numerical or percentage versions of confusion matrices. """
 
     # Create a confusion matrix based on the predicted and correct labels.
     conf_mat = generate_confusion_matrices(correct_out, predicted_out, class_labels, out_type, normalize)
@@ -69,10 +69,9 @@ def plot_confusion_matrix(correct_out, predicted_out, class_labels, out_type="si
         return figure, conf_mat
 
 
-# Done: 100%
 def plot_roc_curve(correct_out, predicted_out, class_labels, show_values="all", out_type="single",
                    return_type="tf_summary", tensor_name="auc/image"):
-    """ Plot the Receiver Operation Characteristic curve. """
+    """ Plots the ROC curve. """
 
     # Generate the ROC curve and calculate individual and averaged AUC values for each class.
     fp_rate, tp_rate, auc_val = calculate_roc_values(correct_out, predicted_out, class_labels) \
@@ -119,7 +118,7 @@ def plot_roc_curve(correct_out, predicted_out, class_labels, show_values="all", 
 
 def plot_prc_curve(correct_out, predicted_out, class_labels, show_values="all", out_type="single",
                    return_type="tf_summary", tensor_name="auc/image"):
-    """ Plot the Receiver Operation Characteristic curve. """
+    """ Plots the PRC curve. """
 
     # Generate the ROC curve and calculate individual and averaged AUC values for each class.
     precision_val, recall_val, avg_precision, _ = calculate_prc_values(correct_out, predicted_out, class_labels) \

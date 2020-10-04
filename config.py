@@ -24,6 +24,12 @@ class FingerprintConfig(NamedTuple):
     model_training: list
 
 
+class ModelConfig(NamedTuple):
+
+    similarity_search: dict
+    model_training: list
+
+
 class FullConfig(NamedTuple):
     datasets: DatasetsConfig
     fp_config: FingerprintConfig

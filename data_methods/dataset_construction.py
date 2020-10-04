@@ -276,7 +276,7 @@ def generate_dataset_splits(args):
 
     # Generate training and validation data and save all of the datasets.
     for fold_index, test_indices in enumerate(folds):
-        print("Generating data for fold {}...".format(fold_index + 1))
+        print("Generating data for fold {}...".format(fold_index + 1), end="")
 
         # If a fold directory does nto exist for a specific fold, create it.
         directory_path = args.datasets.output_folder + "fold_{}/".format(fold_index + 1)
@@ -296,6 +296,8 @@ def generate_dataset_splits(args):
             to_pickle(directory_path + "validation_data.pkl".format(fold_index + 1))
         raw_dataset.iloc[test_indices, :].sort_values("reaction_class"). \
             to_pickle(directory_path + "test_data.pkl".format(fold_index + 1))
+
+        print("done.")
 
 
 def generate_fps_from_reaction_products(reaction_smiles, fp_data_configs):
@@ -453,8 +455,9 @@ def generate_fingerprint_datasets(args):
                             # Append the non-reactive data for the configuration.
                             non_reactive_fps[fpc_ind].extend(nr_fps[fpc_ind])
 
-                            # Since the there are too many entries, save the non-reactive data cca. every 5000 rows.
-                            if row_ctr != 0 and row_ctr % 5005 == 0:
+                            # In the case of running on limited resources:
+                            # Since the there are too many entries, save the non-reactive data cca. every 5005 rows.
+                            if row_ctr != 0 and row_ctr % 50000 == 0:
                                 save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config,
                                                           file_name, "nr_{}".format(row_ctr), "pkl",
                                                           non_reactive_fps[fpc_ind])

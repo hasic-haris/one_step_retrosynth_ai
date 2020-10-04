@@ -1,22 +1,21 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 28th, 2020
-Description: This file contains TensorFlow 1.12 neural network precision, recall and F1 score calculation functions.
+Description: This file contains the TensorFlow 1.12 neural network precision, recall and F1 score calculation functions.
 """
+
 import numpy as np
 
 from sklearn import metrics
 
-from data_methods.data_handling import monotonic
 
-
-# Done: 100%
 def generate_confusion_matrices(correct_out, predicted_out, class_labels, out_type="single", normalize=False):
-    """ Calculate confusion matrices for one or multiple prediction attempts. """
+    """ Generates the confusion matrices for one or multiple prediction attempts. """
 
     # Create a confusion matrix based on the predicted and correct labels for a single or multiple predictions.
     if out_type == "single":
         confusion_matrix = metrics.confusion_matrix(correct_out, predicted_out, labels=class_labels)
+
     # In the case of multiple predicted outputs, generate and use the average value of all matrices.
     else:
         confusion_matrix = np.mean([metrics.confusion_matrix(correct_out, p_out, labels=class_labels)
@@ -32,9 +31,8 @@ def generate_confusion_matrices(correct_out, predicted_out, class_labels, out_ty
     return confusion_matrix
 
 
-# Done: 100%
 def calculate_roc_values(correct_out, predicted_out, class_labels):
-    """ Calculate the Receiver Operation Characteristic (ROC) curve and area under that curve. """
+    """ Calculates the Receiver Operation Characteristic (ROC) curve and the area under that curve. """
 
     # Create dictionaries for each value to store the class and averaged values.
     false_positive_rate, true_positive_rate, curve_auc_value = dict(), dict(), dict()
@@ -71,9 +69,8 @@ def calculate_roc_values(correct_out, predicted_out, class_labels):
     return false_positive_rate, true_positive_rate, curve_auc_value
 
 
-# Done: 100%
 def calculate_prc_values(correct_out, predicted_out, class_labels):
-    """ Calculate the Precision-Recall (PR) curve and if possible, area under that curve. """
+    """ Calculates the Precision-Recall (PR) curve and if possible, the area under that curve. """
 
     # Create dictionaries for each value to store the class and averaged values.
     precision_value, recall_value, curve_auc_value, avg_precision, f1_score = dict(), dict(), dict(), dict(), dict()
@@ -117,9 +114,8 @@ def calculate_prc_values(correct_out, predicted_out, class_labels):
     return precision_value, recall_value, avg_precision, f1_score
 
 
-# Done: 100%
 def average_roc_prc_values(correct_out, multiple_predicted_outs, class_labels, curve_type="roc"):
-    """ Calculate average ROC or PRC curves and area values. """
+    """ Calculates the average ROC or PRC curves and area values. """
 
     # Calculate all of the values for each individual prediction.
     avg_val_1, avg_val_2, avg_val_3, final_val_1, final_val_2, final_val_3 = [], [], [], {}, {}, {}
@@ -144,9 +140,8 @@ def average_roc_prc_values(correct_out, multiple_predicted_outs, class_labels, c
     return final_val_1, final_val_2, final_val_3
 
 
-# Done: 100%
 def generate_prf1_scores(correct_out, predicted_out):
-    """ Calculate the Precision, Recall and F1 Scores (overall and per class) for a single prediction. """
+    """ Generates the Precision, Recall and F1 Scores (overall and per class) for a single prediction. """
 
     # Convert the predictions into integer values.
     correct_out = np.argmax(correct_out, axis=1)
@@ -174,9 +169,8 @@ def generate_prf1_scores(correct_out, predicted_out):
     return overall_scores, class_scores
 
 
-# Done: 100%
 def generate_avg_prf1_scores(correct_out, multiple_predicted_outs):
-    """ Calculate average Precision, Recall and F1 Scores (overall and per class) for multiple prediction outputs. """
+    """ Generates the average Precision, Recall and F1 Scores (overall and per class) for multiple outputs. """
 
     # Calculate and collect the scores for each individual prediction.
     avg_overall_score, avg_class_scores = [], []

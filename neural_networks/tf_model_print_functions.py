@@ -1,13 +1,14 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 28th, 2020
-Description: This file contains console print functions for monitoring the model training procedure.
+Description: This file contains necessary functions for monitoring the model training procedure.
 """
 
 
-# Done: 100%
 def print_epoch_summary(current_epoch, max_epochs, elapsed_time, train_loss, val_loss, val_acc, val_map, val_loss_min,
                         val_acc_max, val_map_max, steps_since_last_improvement):
+    """ Prints the summary of the current training epoch. """
+
     print("Epoch: {}/{}".format(current_epoch + 1, max_epochs))
     print("------------------------------------------------------------------------------------------------------------"
           "------------------------------------------------------------------------------------------------------------"
@@ -26,8 +27,9 @@ def print_epoch_summary(current_epoch, max_epochs, elapsed_time, train_loss, val
           "------")
 
 
-# Done: 100%
 def print_early_stopping_info(current_epoch, early_stopping_interval):
+    """ Prints the activation of the early stopping mechanism. """
+
     print("------------------------------------------------------------------------------------------------------------"
           "-----------------------------------------")
     print("|  Early stopping activated in epoch {:2d}. Checkpoint saved.".format(current_epoch),
@@ -37,8 +39,9 @@ def print_early_stopping_info(current_epoch, early_stopping_interval):
           "-----------------------------------------")
 
 
-# Done: 100%
 def print_test_summary(elapsed_time, test_loss, test_acc, test_roc_auc, test_map):
+    """ Prints the model performance summary on the test set. """
+
     print("------------------------------------------------------------------------------------------------------------"
           "--------------")
     print("|  Testing Time: {:2.2f}s".format(elapsed_time),

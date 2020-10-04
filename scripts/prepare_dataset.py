@@ -20,13 +20,13 @@ print("\nStep 1/5: Generate unique compound pools for the reactants and products
 
 print("\nStep 2/5: Expand the original dataset with additional, useful information.\n")
 # NOTE: This step will produce a lot of RDKit warnings. They can be ignored since I didn't manage to turn them off.
-# expand_reaction_dataset(config)
+expand_reaction_dataset(config)
 
 print("\nStep 3/5: Split the dataset for n-fold cross validation sets for training, validation and testing.\n")
-# generate_dataset_splits(config)
+generate_dataset_splits(config)
 
 print("\nStep 4/5: Generate all specified representations for all of the constructed data splits.\n")
-# generate_fingerprint_datasets(config)
+generate_fingerprint_datasets(config)
 
 print("\nStep 5/5: Generate the final dataset that will be used in the constructed approach.\n")
 create_final_fingerprint_datasets(config)

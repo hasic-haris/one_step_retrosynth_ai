@@ -1,17 +1,17 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 28th, 2020
-Description: This file contains TensorFlow 1.12 neural network layer definitions.
+Description: This file contains the TensorFlow 1.12. neural network layer definitions.
 """
+
 import tensorflow as tf
 
 from neural_networks.tf_general.tf_inits import init_weights, init_bias
 
 
-# Done: 100%
 def fully_connected_layer(x, input_shape, output_shape, layer_index, activation=None,
                           weight_init=tf.initializers.random_normal(), bias_init=0.01):
-    """ Definition of the fully connected layer. """
+    """ Constructs a fully connected layer. """
 
     w = init_weights([input_shape, output_shape], layer_index, weight_init)
     b = init_bias([output_shape], layer_index, bias_init)
@@ -26,10 +26,9 @@ def fully_connected_layer(x, input_shape, output_shape, layer_index, activation=
         return activation(layer)
 
 
-# Done: 100%
 def highway_layer(x, input_shape, output_shape, layer_index, activation=None,
                   weight_init=tf.initializers.random_normal(), bias_init=0.01, carry_bias_init=-20.0):
-    """ Definition of the highway layer. """
+    """ Constructs a highway layer. """
 
     # Step 1: Define weights and biases for the activation gate.
     w = init_weights([input_shape, output_shape], layer_index, weight_init)
