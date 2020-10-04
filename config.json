@@ -1,8 +1,8 @@
 {
   "dataset_config":
   {
-    "raw_dataset": "/data/hhasic/input/data_processed.csv",
-    "output_folder": "/data/hhasic/output/",
+    "raw_dataset": "/data/hhasic/one_step_retrosynthesis_ai/input/data_processed.csv",
+    "output_folder": "/data/hhasic/one_step_retrosynthesis_ai/output/",
 
     "num_folds": 5,
     "validation_split": 0.1,
