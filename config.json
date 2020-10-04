@@ -1,0 +1,20 @@
+{
+  "datasets":
+  {
+    "raw_dataset_path": "D:/Datasets/coley50k_dataset/data_processed.csv",
+    "output_folder": "D:/Datasets/osra_output/",
+
+    "num_folds": 5,
+    "validation_split": 0.1,
+    "random_seed": 101,
+
+    "final_classes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  },
+
+  "fp_config":
+  {
+    "similarity_search": {"type": "ecfp", "radius": 2, "bits": 1024},
+    "model_training": [{"type": "ecfp", "radius": 2, "bits": 1024, "folder_name": "ecfp_2_1024"},
+                       {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"}]
+  }
+}

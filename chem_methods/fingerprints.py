@@ -1,8 +1,9 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  January 11th, 2020
-Description: This file contains functions for the construction and similarity checking of molecular fingerprints.
+Description: This file contains necessary functions for constructing and similarity checking of molecular fingerprints.
 """
+
 import numpy as np
 
 from rdkit.Chem import AllChem, DataStructs
@@ -11,31 +12,28 @@ from rdkit.DataStructs import cDataStructs
 from chem_methods.molecules import get_atom_environment
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Generation of Extended Connectivity Fingerprints and Hot Spot Fingerprints.
-# ----------------------------------------------------------------------------------------------------------------------
-
-# Done: 100%
 def np_array_to_binary_vector(np_arr):
     """ Converts a NumPy array to the RDKit ExplicitBitVector type. """
+
     binary_vector = DataStructs.ExplicitBitVect(len(np_arr))
     binary_vector.SetBitsFromList(np.where(np_arr)[0].tolist())
 
     return binary_vector
 
 
-# Done: 100 %
 def construct_ecfp(mol, radius, bits, from_atoms=None, output_type="bit_vector", as_type="np_int"):
-    """ Returns the Extended Connectivity Fingerprint (ECFP) of the whole molecule (default) or just specific atoms. """
+    """ Returns the Extended Connectivity Fingerprint (ECFP) representation of the whole molecule (default) or just from
+        specific atoms, if it is specified through the 'from_atoms' parameter. The type of the whole fingerprint and the
+        individual bits can be adjusted with the parameters 'output_type' and 'as_type', respectively. """
 
-    # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
+    # Check if the input molecule is given in the SMILES or in the RDKit Mol format.
     if isinstance(mol, str):
-        # Generate the RDKit 'Mol' object from the input SMILES string.
+        # Generate the RDKit Mol object from the input SMILES string.
         mol = AllChem.MolFromSmiles(mol)
         # Sanitize the molecule.
         AllChem.SanitizeMol(mol)
 
-    # Generate the ECFP based on the input parameters.
+    # Generate the ECFP based on the specified input parameters.
     if from_atoms is not None:
         ecfp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=radius, nBits=bits, fromAtoms=from_atoms)
     else:
@@ -47,17 +45,20 @@ def construct_ecfp(mol, radius, bits, from_atoms=None, output_type="bit_vector",
         cDataStructs.ConvertToNumpyArray(ecfp, result_ecfp)
         ecfp = result_ecfp.astype(np.int) if as_type == "np_int" else result_ecfp.astype(np.float)
 
-    # Return the constructed ECFP object.
+    # Return the constructed fingerprint.
     return ecfp
 
 
-# Done: 100%
-def construct_hsfp(mol, radius, bits, from_atoms, nghb_size=-1):
-    """ Returns the Hot Spot Fingerprints (HSFP) in reference to a specified focus atom group as a NumPy array. """
+def construct_hsfp(mol, radius, bits, from_atoms, neighbourhood_ext=None):
+    """ Returns the Hot Spot Fingerprint (HSFP) representation of the whole molecule (default) or just from specific
+        atoms, if it is specified through the 'from_atoms' parameter, as a NumPy array. If the parameter 'from_atoms'
+        includes all of the atoms of the molecule, the constructed fingerprint is equivalent to the ECFP representation
+        of the whole molecule. The 'neighbourhood_ext' parameter controls how many of the neighbourhood atoms are added
+        to the focus atoms specified by the parameter 'from_atoms'. """
 
-    # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
+    # Check if the input molecule is given in SMILES or in the RDKit Mol format.
     if isinstance(mol, str):
-        # Generate the RDKit 'Mol' object from the input SMILES string.
+        # Generate the RDKit Mol object from the input SMILES string.
         mol = AllChem.MolFromSmiles(mol)
         # Sanitize the molecule.
         AllChem.SanitizeMol(mol)
@@ -66,7 +67,7 @@ def construct_hsfp(mol, radius, bits, from_atoms, nghb_size=-1):
     distance_matrix = AllChem.GetDistanceMatrix(mol)
 
     # Set the weight factor for the generation of the HSFP.
-    weight_factor = np.max(distance_matrix) if nghb_size == -1 else nghb_size
+    weight_factor = np.max(distance_matrix) if neighbourhood_ext is None else neighbourhood_ext
 
     # Generate the base of the HSFP, which is basically the ECFP of the core atoms.
     core_fp = construct_ecfp(mol, radius=radius, bits=bits, from_atoms=from_atoms, output_type="np_array")
@@ -87,45 +88,38 @@ def construct_hsfp(mol, radius, bits, from_atoms, nghb_size=-1):
     return np.round(hsfp, 3)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Calculating fingerprint similarity scores.
-# ----------------------------------------------------------------------------------------------------------------------
-
-# Done: 100%
 def tanimoto_similarity(ecfp1, ecfp2):
     """ Returns the Tanimoto similarity value between two fingerprints. """
+
     return DataStructs.TanimotoSimilarity(ecfp1, ecfp2)
 
 
-# Done: 100%
 def bulk_tanimoto_similarity(ecfp, ecfp_pool):
     """ Returns the Tanimoto similarity values between a single fingerprint and a pool of fingerprints. """
+
     return DataStructs.BulkTanimotoSimilarity(ecfp, ecfp_pool)
 
 
-# Done: 100%
 def dice_similarity(ecfp1, ecfp2):
     """ Returns the Dice similarity value between two fingerprints. """
+
     return DataStructs.DiceSimilarity(ecfp1, ecfp2)
 
 
-# Done: 100%
 def bulk_dice_similarity(ecfp, ecfp_pool):
     """ Returns the Dice similarity values between a single fingerprint and a pool of fingerprints. """
+
     return DataStructs.BulkDiceSimilarity(ecfp, ecfp_pool)
 
 
-# Done: 100%
 def tversky_similarity(ecfp1, ecfp2, a=0.5, b=1.0):
     """ Returns the Tversky similarity value between two fingerprints using the parameter values a and b. """
+
     return DataStructs.TverskySimilarity(ecfp1, ecfp2, a, b)
 
 
-# Done: 100%
 def bulk_tversky_similarity(ecfp, ecfp_pool, a=0.5, b=1.0):
     """ Returns the Tversky similarity values between a single fingerprint and a pool of fingerprints using the
-    parameter values a and b. """
-    return DataStructs.BulkTverskySimilarity(ecfp, ecfp_pool, a, b)
+        parameter values a and b. """
 
-# ----------------------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
+    return DataStructs.BulkTverskySimilarity(ecfp, ecfp_pool, a, b)

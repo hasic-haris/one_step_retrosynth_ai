@@ -1,29 +1,25 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  March 10th, 2020
-Description: This file contains functions for the analysis of chemical reactions and extraction of reactive and
-             non-reactive substructures from reactant and product molecules.
+Description: This file contains necessary functions for the analysis of chemical reactions and extraction of reactive
+             and non-reactive substructures from reactant and product molecules.
 """
+
 from copy import deepcopy
 
 from rdkit.Chem import AllChem
 
-from chem_methods.molecules import fetch_rest_of_ring_atoms, count_atom_ring_memberships, atoms_contain_complete_rings
-from chem_methods.editable_molecules import remove_marked_bonds
 from chem_methods.reactions import parse_reaction_roles
 from chem_methods.reaction_cores import get_reaction_core_atoms
+from chem_methods.molecules import fetch_rest_of_ring_atoms, count_atom_ring_memberships, atoms_contain_complete_rings
+from chem_methods.editable_molecules import remove_marked_bonds
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Extraction of reactive and non-reactive parts of the molecules participating in the chemical reaction.
-# ----------------------------------------------------------------------------------------------------------------------
-
-# Done: 100%
 def extract_core_from_mol(mol, reactive_atoms):
     """ Marks and removes non-core atoms from the reactant molecules and returns the reactive part of the reactants or
-    the isolated reaction core for the products. """
+        the isolated reaction core for the products. """
 
-    # Create an editable RDKit 'RWMol' object and create a backup copy of it for later use.
+    # Create an editable RDKit RWMol object and create a backup copy of it for later use.
     editable_mol = AllChem.RWMol(mol)
     default_editable_mol = deepcopy(editable_mol)
 
@@ -45,8 +41,8 @@ def extract_core_from_mol(mol, reactive_atoms):
         remove_marked_bonds(editable_mol)
 
     # If this fails, usually due to sanitization errors, remove molecule atoms according to the expanded core.Some cores
-    # are complete aromatic rings or fused rings which cannot be broken and converted to a RDKit 'Mol' object. Expand
-    # the core indices to include all rings or fused rings, and generate a list of atoms that are not part of this core.
+    # are complete aromatic rings or fused rings which cannot be broken and converted to a RDKit Mol object. Expand the
+    # core indices to include all rings or fused rings, and generate a list of atoms that are not part of this core.
     except:
         # Generate the expanded core.
         expanded_core = fetch_rest_of_ring_atoms(mol, reactive_atoms)
@@ -75,15 +71,14 @@ def extract_core_from_mol(mol, reactive_atoms):
         # Remove all bonds that were replaced with the wildcard atom '*'.
         remove_marked_bonds(editable_mol)
 
-    # Return the editable RDKit 'RWMol' object after the changes have been made.
+    # Return the editable RDKit RWMol object after the changes have been made.
     return editable_mol, basic_editable_mol
 
 
-# Done: 100%
 def extract_synthons_from_reactant(reactant_mol, reactive_atoms):
     """ Marks and removes marked reactive atoms from the reactant molecules and returns only the non-reactive part. """
 
-    # Create an editable RDKit 'RWMol' object and create a backup copy of it for later use.
+    # Create an editable RDKit RWMol object and create a backup copy of it for later use.
     editable_mol = AllChem.RWMol(reactant_mol)
     default_editable_mol = deepcopy(editable_mol)
 
@@ -120,7 +115,7 @@ def extract_synthons_from_reactant(reactant_mol, reactive_atoms):
             # Remove all bonds that were replaced with the wildcard atom '*'.
             remove_marked_bonds(editable_mol)
 
-        # If this laso fails, only remove non-aromatic bond atoms attached to the ring if there are any.
+        # If this also fails, only remove non-aromatic bond atoms attached to the ring if there are any.
         except:
             # Create a new copy of the molecule because the previous one may have been modified.
             editable_mol = deepcopy(default_editable_mol)
@@ -139,15 +134,14 @@ def extract_synthons_from_reactant(reactant_mol, reactive_atoms):
             # Remove all bonds that were replaced with the wildcard atom '*'.
             remove_marked_bonds(editable_mol)
 
-    # Return the editable RDKit 'RWMol' object after the changes have been made.
+    # Return the editable RDKit RWMol object after the changes have been made.
     return editable_mol, basic_editable_mol
 
 
-# Done: 100%
 def extract_synthons_from_product(product_mol, reactive_atoms):
-    """  Marks and removes marked reactive atoms from the product molecules and returns only synthon templates. """
+    """  Marks and removes the reactive atoms from the product molecules and returns only synthon templates. """
 
-    # Create an editable RDKit 'RWMol' object and create a backup copy of it for later use.
+    # Create an editable RDKit RWMol object and create a backup copy of it for later use.
     editable_mol = AllChem.RWMol(product_mol)
     default_editable_mol = deepcopy(editable_mol)
 
@@ -156,7 +150,7 @@ def extract_synthons_from_product(product_mol, reactive_atoms):
         return editable_mol
 
     # First check if all of the core bonds are aromatic.
-    if all([str(bond.GetBondType()) == 'AROMATIC' for bond in editable_mol.GetBonds()
+    if all([str(bond.GetBondType()) == "AROMATIC" for bond in editable_mol.GetBonds()
             if bond.GetBeginAtomIdx() in reactive_atoms and bond.GetEndAtomIdx() in reactive_atoms]):
         # ------------------------------------------------
         # Reactive atoms CONTAIN ONLY FULL AROMATIC RINGS.
@@ -236,7 +230,7 @@ def extract_synthons_from_product(product_mol, reactive_atoms):
     # -----------------------------------------
     # Reactive atoms CONTAIN NO AROMATIC BONDS.
     # -----------------------------------------
-    elif not any([str(bond.GetBondType()) == 'AROMATIC' for bond in editable_mol.GetBonds()
+    elif not any([str(bond.GetBondType()) == "AROMATIC" for bond in editable_mol.GetBonds()
                   if bond.GetBeginAtomIdx() in reactive_atoms and bond.GetEndAtomIdx() in reactive_atoms]):
         # Try removing all of the atoms normally. This should work for all cases.
         for rm_atom in reactive_atoms:
@@ -304,17 +298,12 @@ def extract_synthons_from_product(product_mol, reactive_atoms):
                 # Remove all bonds that were replaced with the wildcard atom '*'.
                 remove_marked_bonds(editable_mol)
 
-    # Return the editable RDKit 'RWMol' object after the changes have been made.
+    # Return the editable RDKit RWMol object after the changes have been made.
     return editable_mol
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Extraction of the data from the reaction SMILES.
-# ----------------------------------------------------------------------------------------------------------------------
-
-# Done: 100%
 def generate_fragment_data(editable_mol, reaction_side="product", basic_editable_mol=None):
-    """ Generates the fragmented molecules into various data formats. """
+    """ Generates and returns various formats of the fragmented molecules. """
 
     # Generate a copy of the molecules to work with and sanitize them.
     focus_mol = deepcopy(editable_mol)
@@ -375,8 +364,8 @@ def generate_fragment_data(editable_mol, reaction_side="product", basic_editable
         raise Exception("The only acceptable keywords are 'reactant' and 'product'.")
 
 
-# Done: 100%
 def extract_info_from_molecule(mol, reactive_atoms, role="product"):
+    """ Extract the reactive and non-reactive parts of the reactant and product molecules from the molecule. """
 
     # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
     if isinstance(mol, str):
@@ -388,98 +377,75 @@ def extract_info_from_molecule(mol, reactive_atoms, role="product"):
     reactive_atoms = sorted(reactive_atoms, reverse=True)
 
     if role == "reactant":
-        rwmol, basic_rwmol = extract_core_from_mol(mol, reactive_atoms)
-        reactive_part = generate_fragment_data(rwmol, reaction_side="reactant", basic_editable_mol=basic_rwmol)
-        rwmol, basic_rwmol = extract_synthons_from_reactant(mol, reactive_atoms)
-        non_reactive_part = generate_fragment_data(rwmol, reaction_side="reactant", basic_editable_mol=basic_rwmol)
+        rw_mol, basic_rw_mol = extract_core_from_mol(mol, reactive_atoms)
+        reactive_part = generate_fragment_data(rw_mol, reaction_side="reactant", basic_editable_mol=basic_rw_mol)
+
+        rw_mol, basic_rw_mol = extract_synthons_from_reactant(mol, reactive_atoms)
+        non_reactive_part = generate_fragment_data(rw_mol, reaction_side="reactant", basic_editable_mol=basic_rw_mol)
 
         return reactive_part, non_reactive_part
     else:
-        rwmol, _ = extract_core_from_mol(mol, reactive_atoms)
-        reactive_part = generate_fragment_data(rwmol)
-        rwmol = extract_synthons_from_product(mol, reactive_atoms)
-        non_reactive_part = generate_fragment_data(rwmol)
+        rw_mol, _ = extract_core_from_mol(mol, reactive_atoms)
+        reactive_part = generate_fragment_data(rw_mol)
+
+        rw_mol = extract_synthons_from_product(mol, reactive_atoms)
+        non_reactive_part = generate_fragment_data(rw_mol)
 
         return reactive_part, non_reactive_part
 
 
-# Done: 100%
 def extract_info_from_reaction(reaction_smiles, reaction_cores=None):
-    """ Main function for the extraction of the reactive and non-reactive molecule parts from the reaction. """
+    """ Extract the reactive and non-reactive parts of the reactant and product molecules from the reaction. """
 
-    # Create final result variables.
     reactant_fragments, product_fragments = [], []
 
-    # Extract the reactants and products as RDKit 'Mol' objects and find the reaction cores.
+    # Extract the reactants and products as RDKit Mol objects and find the reaction cores if none are specified.
     reactants, _, products = parse_reaction_roles(reaction_smiles, as_what="mol_no_maps")
 
     if reaction_cores is None:
         reaction_cores = get_reaction_core_atoms(reaction_smiles)
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # Reactants.
-    # ------------------------------------------------------------------------------------------------------------------
-    for rind, reactant in enumerate(reactants):
+    # Extraction of information from the reactant molecules.
+    for r_ind, reactant in enumerate(reactants):
         # Sanitize the focus molecule.
         AllChem.SanitizeMol(reactant)
-        # Sort the core atom indices in DESC order to avoid removal conflicts.
-        reactive_atoms = sorted(reaction_cores[0][rind], reverse=True)
+        # Sort the core atom indices in descending order to avoid removal conflicts.
+        reactive_atoms = sorted(reaction_cores[0][r_ind], reverse=True)
 
-        # --------------------------------------------------------------------------------
-        # Extraction of the non-reactive part of the reactant a.k.a. the reactant synthon.
-        # --------------------------------------------------------------------------------
-
-        # Mark and remove all of the atoms whihch are not in the reaction core.
-        rwmol, basic_rwmol = extract_core_from_mol(reactant, reactive_atoms)
+        # Mark and remove all of the atoms which are not in the reaction core.
+        rw_mol, basic_rw_mol = extract_core_from_mol(reactant, reactive_atoms)
 
         # Clean and convert the extracted core candidates to different data formats.
-        reactive_part = generate_fragment_data(rwmol, reaction_side="reactant", basic_editable_mol=basic_rwmol)
-
-        # --------------------------------------------------------------------------------
-        # Extraction of the non-reactive part of the reactant a.k.a. the reactant synthon.
-        # --------------------------------------------------------------------------------
+        reactive_part = generate_fragment_data(rw_mol, reaction_side="reactant", basic_editable_mol=basic_rw_mol)
 
         # Mark and remove all of the atoms from the reaction core.
-        rwmol, basic_rwmol = extract_synthons_from_reactant(reactant, reactive_atoms)
+        rw_mol, basic_rw_mol = extract_synthons_from_reactant(reactant, reactive_atoms)
 
         # Clean and convert the extracted core candidates to different data formats.
-        non_reactive_part = generate_fragment_data(rwmol, reaction_side="reactant", basic_editable_mol=basic_rwmol)
+        non_reactive_part = generate_fragment_data(rw_mol, reaction_side="reactant", basic_editable_mol=basic_rw_mol)
 
         reactant_fragments.append((reactive_part, non_reactive_part))
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # Products.
-    # ------------------------------------------------------------------------------------------------------------------
-    for pind, product in enumerate(products):
+    # Extraction of information from the product molecules.
+    for p_ind, product in enumerate(products):
         # Sanitize the focus molecule.
         AllChem.SanitizeMol(product)
         # Sort the core atom indices in DESC order to avoid removal conflicts.
-        reactive_atoms = sorted(reaction_cores[1][pind], reverse=True)
+        reactive_atoms = sorted(reaction_cores[1][p_ind], reverse=True)
 
-        # ------------------------------------------------------------------------------
-        # Extraction of the potential reaction core a.k.a. disconnection bond candidate.
-        # ------------------------------------------------------------------------------
-
-        # Mark and remove all of the atoms whihch are not in the reaction core.
-        rwmol, _ = extract_core_from_mol(product, reactive_atoms)
+        # Mark and remove all of the atoms which are not in the reaction core.
+        rw_mol, _ = extract_core_from_mol(product, reactive_atoms)
 
         # Clean and convert the extracted core candidates to different data formats.
-        reactive_part = generate_fragment_data(rwmol)
-
-        # ----------------------------------------------------------------------
-        # Extraction of the potential unchanged atoms a.k.a. synthon candidates.
-        # ----------------------------------------------------------------------
+        reactive_part = generate_fragment_data(rw_mol)
 
         # Mark and remove all of the atoms from the reaction core.
-        rwmol = extract_synthons_from_product(product, reactive_atoms)
+        rw_mol = extract_synthons_from_product(product, reactive_atoms)
 
         # Clean and convert the extracted synthon candidates to different data formats.
-        non_reactive_part = generate_fragment_data(rwmol)
+        non_reactive_part = generate_fragment_data(rw_mol)
 
         product_fragments.append((reactive_part, non_reactive_part))
 
     # Return all of the generated data for a single chemical reaction.
     return reactant_fragments, product_fragments
-
-# ----------------------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------

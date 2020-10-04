@@ -1,12 +1,12 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  March 10th, 2020
-Description: This file contains functions for handling RDKit editable 'RWMol' molecule objects.
+Description: This file contains necessary functions for handling RDKit editable RWMol molecule objects.
 """
+
 from rdkit.Chem import AllChem
 
 
-# Done: 100%
 def get_atoms_to_remove(editable_mol):
     """ Fetches all of the bonds that were marked for removal by the wildcard symbol '*'. """
 
@@ -20,9 +20,9 @@ def get_atoms_to_remove(editable_mol):
     return sorted(list(set(atoms_to_remove)), reverse=True)
 
 
-# Done: 100%
 def get_bonds_to_remove(editable_mol):
     """ Fetches all of the bonds that were marked for removal by the wildcard symbol '*'. """
+
     bonds_to_remove = []
 
     for bond in editable_mol.GetBonds():
@@ -34,7 +34,6 @@ def get_bonds_to_remove(editable_mol):
     return sorted(list(set(bonds_to_remove)), key=lambda k: k[0], reverse=True)
 
 
-# Done: 100%
 def remove_floating_atoms(editable_mol):
     """ Removes the leftover wildcard atoms '*' that are fully disconnected from the rest of the molecule. """
 
@@ -44,21 +43,22 @@ def remove_floating_atoms(editable_mol):
     [editable_mol.RemoveAtom(rm_atom) for rm_atom in leftover_floating_atoms]
 
 
-# Done: 100%
 def remove_marked_atoms(editable_mol):
     """ Removes the all of the bonds that were marked for removal by the wildcard symbol '*'. """
 
     [editable_mol.RemoveAtom(rm_atom) for rm_atom in get_atoms_to_remove(editable_mol)]
+
     # Sanitize the modified molecule.
     AllChem.SanitizeMol(editable_mol)
 
 
-# Done: 100%
 def remove_marked_bonds(editable_mol):
     """ Removes the all of the bonds that were marked for removal by the wildcard symbol '*'. """
 
     [editable_mol.RemoveBond(rm_bond[0], rm_bond[1]) for rm_bond in get_bonds_to_remove(editable_mol)]
+
     # Clean the editable mol from fully disconnected wildcard atoms '*'.
     remove_floating_atoms(editable_mol)
+
     # Sanitize the modified molecule.
     AllChem.SanitizeMol(editable_mol)

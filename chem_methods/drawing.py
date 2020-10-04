@@ -1,8 +1,9 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  November 9th, 2019
-Explanation: This file contains functions that help with the visualization of molecules and reactions.
+Explanation: This file contains necessary functions that help with the visualization of molecules and reactions.
 """
+
 from rdkit.Chem import AllChem, Draw, rdMolDescriptors
 from rdkit.Chem.Draw import rdMolDraw2D
 
@@ -13,7 +14,6 @@ import io
 from chem_methods.reactions import parse_reaction_roles
 
 
-# Done: 100%
 def assign_colors_to_indices(indices_subsets):
     """ Assigns different colors to different subsets of indices. """
 
@@ -23,13 +23,13 @@ def assign_colors_to_indices(indices_subsets):
 
     # Define the colors that will be used for highlighting different groups of elements.
     color_codes = {1: (0.9, 0.4, 0.4), 2: (0.1, 0.9, 0.4), 3: (0.1, 0.4, 0.9), 4: (0.9, 1, 0.4), 5: (0.9, 0.4, 0.9)}
-    colors, unified_inidces = {}, []
+    colors, unified_indices = {}, []
 
     # Add colors to different subsets.
     color_key = 1
     for subset in indices_subsets:
         for s in subset:
-            unified_inidces.append(s)
+            unified_indices.append(s)
 
             if color_key in color_codes.keys():
                 colors.update({s: color_codes[color_key]})
@@ -39,12 +39,11 @@ def assign_colors_to_indices(indices_subsets):
         color_key = color_key + 1
 
     # Return the generated colors.
-    return unified_inidces, colors
+    return unified_indices, colors
 
 
-# Done: 100%
-def draw_molecule(mol, imsize_x=300, imsize_y=200, highlight_atoms=None, highlight_bonds=None):
-    """ Draw the molecule with or without highlighted individual atoms/bonds and return the image object. """
+def draw_molecule(mol, im_size_x=300, im_size_y=200, highlight_atoms=None, highlight_bonds=None):
+    """ Draws the molecule with or without highlighted individual atoms/bonds and return the image object. """
 
     # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
     if isinstance(mol, str):
@@ -74,7 +73,7 @@ def draw_molecule(mol, imsize_x=300, imsize_y=200, highlight_atoms=None, highlig
         new_mol = rdMolDraw2D.PrepareMolForDrawing(mol, kekulize=False)
 
     # Create the drawer object, draw the molecule and return the final Image object.
-    drawer = rdMolDraw2D.MolDraw2DSVG(imsize_x, imsize_y)
+    drawer = rdMolDraw2D.MolDraw2DSVG(im_size_x, im_size_y)
 
     # Draw molecules according to the specified highlighted elements.
     if highlight_atoms is not None and highlight_bonds is None:
@@ -87,71 +86,70 @@ def draw_molecule(mol, imsize_x=300, imsize_y=200, highlight_atoms=None, highlig
 
     # Finish drawing and edit the .svg string.
     drawer.FinishDrawing()
-    svg = drawer.GetDrawingText().replace('svg:', '')
+    svg = drawer.GetDrawingText().replace("svg:", "")
 
     # Convert the .svg string to .png and then to an Image object.
     return Image.open(io.BytesIO(svg2png(svg)))
 
 
-# Done: 100%
-def draw_reaction(rxn, show_agents=True, reaction_cores=None, imsize_x=300, imsize_y=200):
-    """ Draw the chemical reaction with or without highlighted reaction cores and reactive parts. """
+def draw_reaction(rxn, show_reagents=True, reaction_cores=None, im_size_x=300, im_size_y=200):
+    """ Draws the chemical reaction with or without highlighted reaction cores and reactive parts. """
 
     # Parse the roles from the input object.
     if reaction_cores is None:
         reaction_cores = [[], []]
     if isinstance(rxn, str):
-        reactants, agents, products = parse_reaction_roles(rxn, as_what="mol")
+        reactants, reagents, products = parse_reaction_roles(rxn, as_what="mol")
     else:
         reactants = rxn.GetReactants()
         products = rxn.GetProducts()
-        agents = []
+        reagents = []
 
     mol_images = []
 
     # Draw images of the reactant molecules and append '+' symbol image after each one, except the last one which needs
     # to be followed by the '->' symbol.
-    for rind, r in enumerate(reactants):
+    for r_ind, reactant in enumerate(reactants):
         if len(reaction_cores[0]) > 0:
-            mol_images.append(draw_molecule(r, imsize_x, imsize_y, highlight_atoms=[reaction_cores[0][rind]]))
+            mol_images.append(draw_molecule(reactant, im_size_x, im_size_y, highlight_atoms=[reaction_cores[0][r_ind]]))
         else:
-            mol_images.append(draw_molecule(r, imsize_x, imsize_y))
+            mol_images.append(draw_molecule(reactant, im_size_x, im_size_y))
 
-        if rind == len(reactants) - 1:
+        if r_ind == len(reactants) - 1:
             mol_images.append(Image.open("assets/arr.png"))
         else:
             mol_images.append(Image.open("assets/pls.png"))
 
     # If specified, draw all agent molecules in similar fashion as the reactants.
-    if len(agents) > 0 and show_agents:
-        for aind, a in enumerate(agents):
-            mol_images.append(draw_molecule(a, imsize_x, imsize_y))
-            if aind == len(agents) - 1:
+    if len(reagents) > 0 and show_reagents:
+        for rg_ind, reagent in enumerate(reagents):
+            mol_images.append(draw_molecule(reagent, im_size_x, im_size_y))
+            if rg_ind == len(reagents) - 1:
                 mol_images.append(Image.open("assets/arr.png"))
             else:
                 mol_images.append(Image.open("assets/pls.png"))
 
     # Draw all product molecules.
-    for pind, p in enumerate(products):
+    for p_ind, product in enumerate(products):
         if len(reaction_cores[1]) > 0:
-            mol_images.append(draw_molecule(p, imsize_x, imsize_y, highlight_atoms=[reaction_cores[1][pind]]))
+            mol_images.append(draw_molecule(product, im_size_x, im_size_y, highlight_atoms=[reaction_cores[1][p_ind]]))
         else:
-            mol_images.append(draw_molecule(p, imsize_x, imsize_y, highlight_atoms=[]))
-        if pind != len(products) - 1:
+            mol_images.append(draw_molecule(product, im_size_x, im_size_y, highlight_atoms=[]))
+        if p_ind != len(products) - 1:
             mol_images.append(Image.open("assets/pls.png"))
 
     # Adjust the widths and the heights of the images and generate the final images.
     widths, heights = zip(*(i.size for i in mol_images))
     total_width = sum(widths)
     max_height = max(heights)
-    new_im = Image.new('RGB', (total_width, max_height), (255, 255, 255))
+    new_im = Image.new("RGB", (total_width, max_height), (255, 255, 255))
 
     # Calculate the height and width offsets for the smaller '+' and '->' images and append everything into a single
     # image representing the reaction.
     x_offset, y_offset = 0, 0
     for ind, im in enumerate(mol_images):
         if ind % 2 != 0:
-            y_offset = round(imsize_y / 2 - im.size[1] / 2)
+            y_offset = round(im_size_y / 2 - im.size[1] / 2)
         else:
             y_offset = 0
 
@@ -162,11 +160,10 @@ def draw_reaction(rxn, show_agents=True, reaction_cores=None, imsize_x=300, imsi
     return new_im
 
 
-# Done: 100%
 def draw_fingerprint_substructures(mol, radius, from_atoms=None, imsize_x=250, imsize_y=250):
-    """ Draw the fingerprint substructures of a molecule for a specified radius. """
+    """ Draws the fingerprint substructures of a molecule for a specified radius. """
 
-    # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
+    # Check if the input molecule is given in SMILES or in the RDKit Mol format.
     if isinstance(mol, str):
         try:
             # Generate the RDKit 'Mol' object from the input SMILES string.
@@ -185,7 +182,7 @@ def draw_fingerprint_substructures(mol, radius, from_atoms=None, imsize_x=250, i
     drawer = Draw.DrawMorganBits(on_bits, molsPerRow=3, subImgSize=(imsize_x, imsize_y),
                                  legends=[str(x) for x in fp.GetOnBits()])
     # Modify the .svg string.
-    svg = drawer.replace('svg:', '')
+    svg = drawer.replace("svg:", "")
 
     # Return the final Image object.
     return Image.open(io.BytesIO(svg2png(svg)))

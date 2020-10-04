@@ -1,43 +1,23 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 21st, 2020
-Description: This file contains miscellaneous functions used for easier data processing.
+Description: This file contains necessary functions for easier data processing.
 """
+
 import numpy as np
 import pandas as pd
 
 from collections import defaultdict
 from sklearn import utils
-
 from imblearn.over_sampling import SMOTE
 
 
-def strictly_increasing(input_list):
-    return all(x < y for x, y in zip(input_list, input_list[1:]))
-
-
-def strictly_decreasing(input_list):
-    return all(x > y for x, y in zip(input_list, input_list[1:]))
-
-
-def non_increasing(input_list):
-    return all(x >= y for x, y in zip(input_list, input_list[1:]))
-
-
-def non_decreasing(input_list):
-    return all(x <= y for x, y in zip(input_list, input_list[1:]))
-
-
-def monotonic(input_list):
-    return non_increasing(input_list) or non_decreasing(input_list)
-
-
-# Done: 100%
 def comp(node, neigh, visited, vis):
-    """ Helper function for merging sub-lists that have common elements. """
+    """ Helps merging sub-lists that have common elements. """
 
     nodes = {node}
     next_node = nodes.pop
+
     while nodes:
         node = next_node()
         vis(node)
@@ -45,21 +25,21 @@ def comp(node, neigh, visited, vis):
         yield node
 
 
-# Done: 100%
 def merge_common(lists):
-    """ Function to merge all sub-list that have common elements. """
+    """ Merges all sub-list that have common elements. """
 
     neigh = defaultdict(set)
     visited = set()
+
     for each in lists:
         for item in each:
             neigh[item].update(each)
+
     for node in neigh:
         if node not in visited:
             yield sorted(comp(node, neigh, visited, visited.add))
 
 
-# Done: 100%
 def get_n_most_frequent_rows(arr, n):
     """ Returns the n-most frequent rows from a numpy array. """
 
@@ -69,9 +49,8 @@ def get_n_most_frequent_rows(arr, n):
     return list(indices[p][0:n])
 
 
-# Done: 100%
 def split_to_batches(data, labels, batch_size, random_seed=101):
-    """ Split the input dataset to batches. """
+    """ Splits the input dataset to batches. """
 
     # Shuffle the data and the labels in the same fashion.
     data, labels = utils.shuffle(data, labels, random_state=random_seed)
@@ -91,8 +70,9 @@ def split_to_batches(data, labels, batch_size, random_seed=101):
     return np.array(data_batches), np.array(label_batches)
 
 
-# Done: 100%
 def read_datasets_from_fold(data_path, fold_index, fp_specs, label_type="binary", oversample=False):
+    """ Reads all of the data splits from a specific fold indicated by the parameter 'fold_index'. """
+
     # Construct the final path to the specified dataset.
     final_path = data_path + "fold_{}/".format(fold_index) + fp_specs + "/"
 
@@ -120,9 +100,8 @@ def read_datasets_from_fold(data_path, fold_index, fp_specs, label_type="binary"
     return x_train, y_train, x_val, y_val, x_test, y_test
 
 
-# Done: 100%
 def encode_one_hot(actual_class, all_classes):
-    """ Function to encode labels as one-hot vectors. """
+    """ Encodes labels as one-hot vectors. """
 
     one_hot_encoding = np.zeros(len(all_classes))
     one_hot_encoding[all_classes.index(actual_class)] = 1
