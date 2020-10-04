@@ -14,7 +14,7 @@ In time, appropriate scripts will be written and the user manual will be posted.
 conda env create -f environment.yml
 ```
 ```shell script
-conda activate jtvae
+conda activate osra_env
 ```
 
 #### Configuration

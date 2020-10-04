@@ -1,4 +1,4 @@
-name: ChemicalReactionProcessingEnv
+name: osra_env
 channels:
   - rdkit
   - mcs07
