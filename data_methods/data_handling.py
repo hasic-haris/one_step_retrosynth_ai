@@ -60,9 +60,6 @@ def read_datasets_from_fold(dataset_path, fold_index, input_config, label_type="
     y_train = pd.read_pickle(working_directory + "y_bc_training.pkl").values if label_type == "binary" else \
         pd.read_pickle(working_directory + "y_mc_training.pkl").values
 
-    print(len(x_train))
-    print(len(y_train))
-
     # Load the validation data and labels.
     x_val = pd.read_pickle(working_directory + "x_validation.pkl").values
     y_val = pd.read_pickle(working_directory + "y_bc_validation.pkl").values if label_type == "binary" else \

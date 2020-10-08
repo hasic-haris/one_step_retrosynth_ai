@@ -392,38 +392,6 @@ def save_fingerprints_to_file(output_folder_path, fp_parameters, file_name, file
         old_dataset.to_pickle(output_folder_path + "/" + file_name)
 
 
-def process_non_reactive_fingerprints(folder_path, fp_params, file_name, file_role, file_extension, keep_pct=0.2):
-    """ Picks the 20% of the most frequent non-reactive rows from each group and aggregates them. """
-
-    # The first file needs an indication to also create the dataset.
-    done_ctr = 0
-
-    for item_name in os.listdir(folder_path):
-        # Read only files which contain "_nr_" mark in their name.
-        if file_name[0:-4] in item_name and file_role in item_name:
-            print("Aggregating the '{}' file...".format(item_name), end="")
-
-            nr_fps = pd.read_pickle(folder_path + "/" + item_name).values
-
-            # Convert the list of the non-reactive substructures to an np array for easy list indexing and select only
-            # the n most frequent rows.
-            nr_fps = nr_fps[get_n_most_frequent_rows(nr_fps, round(len(nr_fps) * keep_pct))].tolist()
-            mode = "w" if done_ctr == 0 else "a"
-
-            # Save the filtered non-reactive fingerprints.
-            save_fingerprints_to_file(folder_path, fp_params, file_name, "nr", file_extension, nr_fps, mode=mode)
-
-            print("done.")
-
-            # Delete the temporary file.
-            print("Deleting the '{}' file...".format(item_name), end="")
-
-            os.remove(folder_path + "/" + item_name)
-            done_ctr += 1
-
-            print("done.")
-
-
 def generate_fingerprint_datasets(args):
     """ Generates fingerprint representations for all of the previously constructed data splits. """
 
@@ -445,7 +413,7 @@ def generate_fingerprint_datasets(args):
 
                     reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
                     non_reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
-                    mc_lab, row_ctr = [], 0
+                    mc_lab = []
 
                     # Iterate through all of the rows of each dataset.
                     for row_ind, row in tqdm(curr_dataset.iterrows(), total=len(curr_dataset.index),
@@ -463,18 +431,9 @@ def generate_fingerprint_datasets(args):
                         for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
                             # Append the reactive data and an equal amount of multi-class labels for the configuration.
                             reactive_fps[fpc_ind].extend(r_fps[fpc_ind])
+
                             # Append the non-reactive data for the configuration.
                             non_reactive_fps[fpc_ind].extend(nr_fps[fpc_ind])
-
-                            # In the case of running on limited resources:
-                            # Since the there are too many entries, save the non-reactive data cca. every 5005 rows.
-                            if row_ctr != 0 and row_ctr % 50000 == 0:
-                                save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config,
-                                                          file_name, "nr_{}".format(row_ctr), "pkl",
-                                                          non_reactive_fps[fpc_ind])
-                                non_reactive_fps[fpc_ind] = []
-
-                        row_ctr += 1
 
                     # Save the reactive data and the labels, as well as the rest of the non-reactive data.
                     for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
@@ -482,22 +441,15 @@ def generate_fingerprint_datasets(args):
                         save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name, "r",
                                                   "pkl", reactive_fps[fpc_ind])
 
-                        # Save the rest of the non-reactive data.
-                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name,
-                                                  "nr_{}".format(len(curr_dataset)), "pkl", non_reactive_fps[fpc_ind])
+                        # Save the non-reactive data.
+                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name, "nr",
+                                                  "pkl", non_reactive_fps[fpc_ind])
 
                         # Save the binary and multi-class labels for the reactive parts of the data.
-                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name,
-                                                  "bc", "pkl", np.full((len(reactive_fps[fpc_ind]), 1), 1, np.float))
-                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name,
-                                                  "mc", "pkl", mc_lab)
-
-                        gc.collect()
-
-                    # Finally, filter out the top-n frequent non-reactive fingerprints for each configuration.
-                    for fpc_ind, fp_config in enumerate(args.descriptor_config.model_training):
-                        process_non_reactive_fingerprints(fold_dir_path + fp_config["folder_name"], fp_config,
-                                                          file_name, "nr_", "pkl")
+                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name, "bc",
+                                                  "pkl", np.full((len(reactive_fps[fpc_ind]), 1), 1, np.float))
+                        save_fingerprints_to_file(fold_dir_path + fp_config["folder_name"], fp_config, file_name, "mc",
+                                                  "pkl", mc_lab)
 
 
 def create_final_fingerprint_datasets(args):
