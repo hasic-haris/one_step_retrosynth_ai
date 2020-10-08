@@ -13,5 +13,5 @@ full_config = FullConfig.load()
 
 np.warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
-train_model(full_config, specific_fold=1)
+#train_model(full_config, specific_fold=1)
 test_model(full_config, specific_fold=1)
