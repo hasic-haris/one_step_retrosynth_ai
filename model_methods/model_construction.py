@@ -11,7 +11,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from model_methods.tf_general.tf_layers import fully_connected_layer, highway_layer
+from model_methods.tf_layers import fully_connected_layer, highway_layer
 from model_methods.tf_model_print_functions import print_epoch_summary, print_early_stopping_info, print_training_summary
 from data_methods.data_handling import split_to_batches, read_datasets_from_fold
 from model_methods.scores import calculate_roc_values, calculate_prc_values
@@ -153,7 +153,7 @@ def train_model(args, specific_fold=None, verbose=True):
     model_config = generate_model_configuration(args)
 
     # Get the folds on which the model will be trained.
-    train_on_folds = range(args.dataset_config.num_folds) if specific_fold is None else [specific_fold]
+    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_fold is None else [specific_fold]
 
     for fold_index in train_on_folds:
         for input_config in model_config["input_configs"]:

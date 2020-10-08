@@ -10,4 +10,4 @@ from model_methods.model_construction import train_model
 
 full_config = FullConfig.load()
 
-train_model(full_config, 2)
+train_model(full_config, specific_fold=1)
