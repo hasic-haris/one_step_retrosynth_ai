@@ -18,9 +18,15 @@ from data_methods.helpers import split_to_batches, read_datasets_from_fold
 from model_methods.scores import calculate_roc_values, calculate_prc_values
 from model_methods.visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
 
+# TODO: Improve results monitoring and create an aggregate fold performance summary.
+
 
 def generate_log_folder(logs_folder_path, fold_index, log_folder_name):
     """ Generates the necessary folder for storing checkpoint information of the generated model configuration. """
+
+    # Create the current log folder if it does not exist.
+    if not os.path.exists(logs_folder_path):
+        os.mkdir(logs_folder_path)
 
     # Create the current fold folder if it does not exist.
     if not os.path.exists(logs_folder_path + "fold_{}/".format(fold_index)):

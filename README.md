@@ -29,7 +29,12 @@ python -m scripts.prepare_dataset config.json
 The process consists out of 5 steps and the final dataset is saved in the folder specified in the configuration. 
 
 #### 2. Model Training
-TBD.
+The specified model can be trained by running the following command:
+
+```shell script
+python -m scripts.train_model config.json
+```
+All of the hyper-parameters are specified in the configuration. 
 
 #### 3. Full Pipeline Application
 TBD.
