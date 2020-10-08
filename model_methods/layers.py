@@ -6,7 +6,7 @@ Description: This file contains the TensorFlow 1.12. neural network layer defini
 
 import tensorflow as tf
 
-from model_methods.tf_inits import init_weights, init_bias
+from model_methods.initializations import init_weights, init_bias
 
 
 def fully_connected_layer(layer_index, layer_input, input_size, output_size, activation_fcn=None,

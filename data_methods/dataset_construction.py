@@ -464,7 +464,7 @@ def create_final_fingerprint_datasets(args):
             for data_dir in os.listdir(fold_dir_path):
                 if not data_dir.endswith(".pkl"):
                     data_dir_path = fold_dir_path + data_dir + "/"
-                    print("Reading files from the '{}' folder.".format(data_dir_path))
+                    print("Reading files from the '{}' folder.".format(data_dir))
 
                     # Finally, iterate through all of the files in the current dataset variant folder and read the
                     # reactive and non-reactive parts.
@@ -499,7 +499,7 @@ def create_final_fingerprint_datasets(args):
                         x_fp = np.vstack((r_fp, nr_fp))
                         pd.to_pickle(pd.DataFrame(x_fp), data_dir_path + "x_{}.pkl".format(dataset_split))
 
-                        print("done.")
+                        print("done. Shape: {}".format(str(x_fp.shape)))
 
                         # Aggregate the reactive and non-reactive labels.
                         print("Aggregating and saving the labels for the {} set...".format(dataset_split), end="")
@@ -509,4 +509,4 @@ def create_final_fingerprint_datasets(args):
                         y_mc = np.vstack((r_mc, nr_mc))
                         pd.to_pickle(pd.DataFrame(y_mc), data_dir_path + "y_mc_{}.pkl".format(dataset_split))
 
-                        print("done.")
+                        print("done. Shape: {}".format(str(y_mc.shape)))
