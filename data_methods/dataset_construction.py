@@ -481,9 +481,17 @@ def create_final_fingerprint_datasets(args):
                             if dataset_split in file_name and "_mc" in file_name:
                                 r_mc = pd.read_pickle(data_dir_path + file_name).values
 
+                        print(r_fp.shape)
+                        print(nr_fp.shape)
+                        print(r_bc.shape)
+                        print(r_mc.shape)
+
                         # Filter the negative samples to the amount of the highest populated positive class.
                         print("Filtering negative samples for the {} set...".format(dataset_split), end="")
                         nr_samples = sorted(Counter([np.argmax(r) for r in r_mc]).values(), reverse=True)[0]
+
+                        print(nr_samples)
+
                         nr_fp = nr_fp[get_n_most_frequent_rows(nr_fp, nr_samples)]
 
                         # Generate the labels for the saved non-reactive fingerprints.
