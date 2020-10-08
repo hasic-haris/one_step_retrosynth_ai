@@ -8,7 +8,7 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 
-from neural_networks.tf_model_construction import train_model, test_model
+from model_methods.tf_model_construction import train_model, test_model
 from data_methods.data_handling import read_datasets_from_fold
 from data_methods.dataset_construction import generate_fps_from_reaction_products
 from data_methods.data_handling import encode_one_hot
@@ -52,7 +52,6 @@ def generate_model_hp_config(input_fp_data, oversample, fixed_model_ind=0, class
         "oversample": oversample,                               # Usage of dataset oversampling.
 
         # General network specification.
-        "classification_type": "multi-class",                   # Type of classification problem.
         "random_seed": 101,                                     # Random seed used for reproducibility purposes.
         "learning_rate": 0.0005,                                # ADAM optimizer learning rate.
         "max_num_epochs": 200,                                  # Maximum number of epochs.
@@ -61,12 +60,8 @@ def generate_model_hp_config(input_fp_data, oversample, fixed_model_ind=0, class
 
         # Input layer specifications.
         "input_size": 1024,                                     # Input layer size.
-        "input_activation": tf.nn.relu,                         # Input layer activation function.
-        "input_init": tf.initializers.glorot_normal(),          # Input layer weight initialization function.
-        "input_dropout": 0.0,                                   # Input layer dropout value.
 
         # Hidden layers specifications.
-        "num_hidden_layers": fixed_model[fixed_model_ind][0],   # Total number of layers in the network.
         "hidden_types": fixed_model[fixed_model_ind][1],        # Individual hidden layer sizes.
         "hidden_sizes": fixed_model[fixed_model_ind][2],        # Individual hidden layer sizes.
         "hidden_activations": fixed_model[fixed_model_ind][3],  # Hidden layer activation function.
@@ -79,17 +74,19 @@ def generate_model_hp_config(input_fp_data, oversample, fixed_model_ind=0, class
         "output_init": tf.initializers.glorot_normal(),         # Output layer weight initialization function.
 
         # Path to a folder to save the TensorFlow summaries of the trained network.
-        "main_log_folder": "neural_networks/constructed_models/multiclass_classification/"}
+        "main_log_folder": "model_methods/configurations_logs/multiclass_classification/"}
 
     # If it is binary classification, make appropriate changes to the constructed hyper-parameter configuration.
     if classification_type == "binary":
         model_hp_config["classification_type"] = "binary"
         model_hp_config["output_size"] = 1
         model_hp_config["output_activation"] = tf.nn.sigmoid
-        model_hp_config["model_log_folder"] = "neural_networks/constructed_models/binary_classification/"
+        model_hp_config["model_log_folder"] = "model_methods/configurations_logs/binary_classification/"
 
     # Return the constructed hyper-parameter configuration.
     return model_hp_config
+
+
 
 
 # Done: 0%
@@ -167,7 +164,7 @@ def train_and_evaluate_model(**kwargs):
 
 
 from rdkit.Chem import AllChem
-from chem_methods.fingerprints import construct_hsfp
+from chemistry_methods.fingerprints import construct_hsfp
 
 # Done: 0.5%
 def qualitative_model_assessment(**kwargs):

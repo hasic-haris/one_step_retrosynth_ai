@@ -6,7 +6,7 @@ Description: This script evaluates the full single-step retrosynthesis pipeline.
 
 from config import FullConfig
 
-from final_combined_pipeline.one_step_retrosynthetic_analysis import analyze_novel_molecule
+from retrosynthesis_methods.one_step_retrosynthetic_analysis import analyze_novel_molecule
 
 
 config = FullConfig.load()

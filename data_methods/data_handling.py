@@ -49,6 +49,36 @@ def get_n_most_frequent_rows(arr, n):
     return list(indices[p][0:n])
 
 
+def read_datasets_from_fold(dataset_path, fold_index, input_config, label_type="multiclass", use_oversampling=False):
+    """ Reads all of the dataset splits from a specific fold indicated by the parameter 'fold_index'. """
+
+    # Construct the working directory path to the specified dataset splits.
+    working_directory = dataset_path + "fold_{}/".format(fold_index) + input_config + "/"
+
+    # Load the training data and labels.
+    x_train = pd.read_pickle(working_directory + "x_training.pkl").values
+    y_train = pd.read_pickle(working_directory + "y_bc_training.pkl").values if label_type == "binary" else \
+        pd.read_pickle(working_directory + "y_mc_training.pkl").values
+
+    # Load the validation data and labels.
+    x_val = pd.read_pickle(working_directory + "x_validation.pkl").values
+    y_val = pd.read_pickle(working_directory + "y_bc_validation.pkl").values if label_type == "binary" else \
+        pd.read_pickle(working_directory + "y_mc_validation.pkl").values
+
+    # Load the validation data and labels.
+    x_test = pd.read_pickle(working_directory + "x_test.pkl").values
+    y_test = pd.read_pickle(working_directory + "y_bc_test.pkl").values if label_type == "binary" \
+        else pd.read_pickle(working_directory + "y_mc_test.pkl").values
+
+    # Oversample the training data if it is indicated in the network parameters.
+    if use_oversampling:
+        sm = SMOTE()
+        x_train, y_train = sm.fit_sample(x_train, y_train)
+
+    # Return all of the read data.
+    return x_train, y_train, x_val, y_val, x_test, y_test
+
+
 def split_to_batches(data, labels, batch_size, random_seed=101):
     """ Splits the input dataset to batches. """
 
@@ -66,38 +96,12 @@ def split_to_batches(data, labels, batch_size, random_seed=101):
             data_batches.append(data[i*batch_size:(i+1)*batch_size])
             label_batches.append(labels[i*batch_size:(i+1)*batch_size])
 
+    # Remove any empty lists that might be there.
+    data_batches = [dat for dat in data_batches if dat != []]
+    label_batches = [lab for lab in label_batches if lab != []]
+
     # Return the generated batches.
     return np.array(data_batches), np.array(label_batches)
-
-
-def read_datasets_from_fold(data_path, fold_index, fp_specs, label_type="binary", oversample=False):
-    """ Reads all of the data splits from a specific fold indicated by the parameter 'fold_index'. """
-
-    # Construct the final path to the specified dataset.
-    final_path = data_path + "fold_{}/".format(fold_index) + fp_specs + "/"
-
-    # Load the training data and labels.
-    x_train = pd.read_pickle(final_path + "x_training.pkl").values
-    y_train = pd.read_pickle(final_path + "y_bc_training.pkl").values if label_type == "binary" else \
-        pd.read_pickle(final_path + "y_mc_training.pkl").values
-
-    # Load the validation data and labels.
-    x_val = pd.read_pickle(final_path + "x_validation.pkl").values
-    y_val = pd.read_pickle(final_path + "y_bc_validation.pkl").values if label_type == "binary" else \
-        pd.read_pickle(final_path + "y_mc_validation.pkl").values
-
-    # Load the validation data and labels.
-    x_test = pd.read_pickle(final_path + "x_test.pkl").values
-    y_test = pd.read_pickle(final_path + "y_bc_test.pkl").values if label_type == "binary" \
-        else pd.read_pickle(final_path + "y_mc_test.pkl").values
-
-    # Oversample the training data if it is indicated in the network parameters.
-    if oversample:
-        sm = SMOTE()
-        x_train, y_train = sm.fit_sample(x_train, y_train)
-
-    # Return all of the read data.
-    return x_train, y_train, x_val, y_val, x_test, y_test
 
 
 def encode_one_hot(actual_class, all_classes):

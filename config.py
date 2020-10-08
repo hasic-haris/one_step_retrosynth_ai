@@ -26,7 +26,18 @@ class DescriptorConfig(NamedTuple):
 
 class ModelConfig(NamedTuple):
 
+    logs_folder: str
     fixed_model: int
+    random_seed: float
+    use_oversampling: int
+    learning_rate: float
+    max_epochs: int
+    batch_size: int
+    early_stopping: int
+
+    input_layer: dict
+    output_layer: dict
+    hidden_layers: list
 
 
 class FullConfig(NamedTuple):

@@ -5,10 +5,9 @@ Description: This script runs the training process of the neural network model o
 """
 
 from config import FullConfig
+from model_methods.model_construction import train_model
 
-from neural_networks.tf_main import train_and_evaluate_model, qualitative_model_assessment
 
+full_config = FullConfig.load()
 
-config = FullConfig.load()
-
-#train_and_evaluate_model(**input_params)
+train_model(full_config, 2)

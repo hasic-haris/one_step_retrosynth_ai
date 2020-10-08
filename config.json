@@ -20,6 +20,35 @@
 
   "model_config":
   {
-    "fixed_model": 0
+    "logs_folder": "model_methods/configurations_logs/",
+    "fixed_model": 0,
+    "random_seed": 101,
+    "use_oversampling": "True",
+    "learning_rate": 0.0005,
+    "max_epochs": 200,
+    "batch_size": 128,
+    "early_stopping": 20,
+    "input_layer": {"size": 1024},
+    "output_layer": {"size": 11, "activation_fcn":  "tf.nn.softmax"},
+    "hidden_layers":
+    [
+      {"types": ["fcl"], "sizes": [1024], "activation_fcns": ["tf.nn.relu"], "dropouts":  [0.33]},
+
+      {"types": ["fcl", "fcl"], "sizes": [1024, 1024], "activation_fcns": ["tf.nn.relu", "tf.nn.relu"],
+       "dropouts":  [0.33, 0.33]},
+
+      {"types": ["fcl", "fcl", "fcl"], "sizes": [1024, 1024, 1024],
+       "activation_fcns": ["tf.nn.relu", "tf.nn.relu", "tf.nn.relu"], "dropouts":  [0.33, 0.33, 0.33]},
+
+      {"types": ["fcl", "hl"], "sizes": [1024, 1024], "activation_fcns": ["tf.nn.elu", "tf.nn.relu"],
+       "dropouts":  [0.2, 0.2]},
+
+      {"types": ["fcl", "hl", "hl", "hl"], "sizes": [1024, 1024, 1024, 1024],
+       "activation_fcns": ["tf.nn.elu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu"], "dropouts":  [0.2, 0.2, 0.2, 0.2]},
+
+      {"types": ["fcl", "hl", "hl", "hl", "hl", "hl"], "sizes": [1024, 1024, 1024, 1024, 1024, 1024],
+       "activation_fcns": ["tf.nn.elu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu"],
+       "dropouts":  [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]}
+    ]
   }
 }

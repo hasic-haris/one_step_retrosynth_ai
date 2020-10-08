@@ -3,17 +3,6 @@ Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Scien
 Created on:  February 1st, 2020
 Description: This is the main file. All test functions can be ran from here.
 """
-from data_methods.dataset_construction import generate_unique_compound_pools
-from data_methods.dataset_construction import expand_reaction_dataset
-from data_methods.dataset_construction import generate_dataset_splits
-from data_methods.dataset_construction import generate_fingerprint_datasets, create_final_fingerprint_datasets
-from data_methods.dataset_construction import generate_pipeline_test_dataset
-
-from neural_networks.tf_main import train_and_evaluate_model, qualitative_model_assessment
-
-from reactant_retrieval.reactant_retrieval_and_scoring import benchmark_reactant_candidate_retrieval
-
-from final_combined_pipeline.one_step_retrosynthetic_analysis import analyze_novel_molecule
 
 # ----------------------------------------------------------- #
 #   Stage 1: Prepare the input data for the planned models.   #

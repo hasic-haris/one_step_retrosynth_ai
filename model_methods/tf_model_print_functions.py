@@ -39,6 +39,17 @@ def print_early_stopping_info(current_epoch, early_stopping_interval):
           "-----------------------------------------")
 
 
+def print_training_summary(best_epoch, epoch_loss, val_loss_min, val_acc_max, val_auc_max, val_map_max):
+    """ Prints the model performance summary of the training process. """
+
+    print("Best epoch: " + best_epoch)
+    print("Best epoch loss: " + np.mean(epoch_loss))
+    print("Validation loss minimum: " + val_loss_min)
+    print("Validation accuracy maximum: " + val_acc_max)
+    print("Validation AUC maximum: " + val_auc_max)
+    print("Validation mAP maximum: " + val_map_max)
+
+
 def print_test_summary(elapsed_time, test_loss, test_acc, test_roc_auc, test_map):
     """ Prints the model performance summary on the test set. """
 

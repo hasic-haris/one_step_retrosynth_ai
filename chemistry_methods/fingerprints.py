@@ -9,7 +9,7 @@ import numpy as np
 from rdkit.Chem import AllChem, DataStructs
 from rdkit.DataStructs import cDataStructs
 
-from chem_methods.molecules import get_atom_environment
+from chemistry_methods.molecules import get_atom_environment
 
 
 def np_array_to_binary_vector(np_arr):

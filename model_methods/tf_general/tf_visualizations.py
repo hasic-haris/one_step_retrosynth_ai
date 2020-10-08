@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from textwrap import wrap
 from itertools import cycle
 
-from neural_networks.tf_general.tf_scores import generate_confusion_matrices
-from neural_networks.tf_general.tf_scores import calculate_roc_values, calculate_prc_values, average_roc_prc_values
+from model_methods.scores import generate_confusion_matrices
+from model_methods.scores import calculate_roc_values, calculate_prc_values, average_roc_prc_values
 
 
 def plot_confusion_matrix(correct_out, predicted_out, class_labels, out_type="single", normalize=False,

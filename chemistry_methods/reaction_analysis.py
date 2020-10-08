@@ -9,10 +9,10 @@ from copy import deepcopy
 
 from rdkit.Chem import AllChem
 
-from chem_methods.reactions import parse_reaction_roles
-from chem_methods.reaction_cores import get_reaction_core_atoms
-from chem_methods.molecules import fetch_rest_of_ring_atoms, count_atom_ring_memberships, atoms_contain_complete_rings
-from chem_methods.editable_molecules import remove_marked_bonds
+from chemistry_methods.reactions import parse_reaction_roles
+from chemistry_methods.reaction_cores import get_reaction_core_atoms
+from chemistry_methods.molecules import fetch_rest_of_ring_atoms, count_atom_ring_memberships, atoms_contain_complete_rings
+from chemistry_methods.editable_molecules import remove_marked_bonds
 
 
 def extract_core_from_mol(mol, reactive_atoms):

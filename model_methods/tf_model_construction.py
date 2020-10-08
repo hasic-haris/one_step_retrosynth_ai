@@ -1,33 +1,34 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
-Created on:  February 24ht, 2020
-Description: This file contains functions for the training and evaluation of the TensorFlow 1.12 multi-class
-             classification model constructed in this study.
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
+Created on:  February 24th, 2020
+Description: This file contains necessary functions for the training and evaluation for all of the neural network models
+             constructed in this study.
 """
+
 import tensorflow as tf
 import numpy as np
 import time
 import os
 
-from neural_networks.tf_general.tf_layers import fully_connected_layer, highway_layer
-from neural_networks.tf_model_print_functions import print_epoch_summary, print_early_stopping_info, print_test_summary
+from model_methods.tf_general.tf_layers import fully_connected_layer, highway_layer
+from model_methods.tf_model_print_functions import print_epoch_summary, print_early_stopping_info, print_test_summary
 from data_methods.data_handling import split_to_batches, read_datasets_from_fold
-from neural_networks.tf_general.tf_visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
-from neural_networks.tf_general.tf_scores import calculate_roc_values, calculate_prc_values
+from model_methods.tf_general.tf_visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
+from model_methods.scores import calculate_roc_values, calculate_prc_values
 
 
-# Done: 100%
-def get_summary_folders(data_path, fold_index, log_folder=""):
-    """ Creates all necessary folders for storing information of a trained TensorFlow model. """
+def get_log_folder(data_path, fold_index, log_folder=""):
+    """ Creates the necessary folders for storing checkpoint information of the generated model configurations. """
 
     # Create the fold folder if it doesn't exist.
     if not os.path.exists(data_path + "fold_{}/".format(fold_index)):
         os.mkdir(data_path + "fold_{}".format(fold_index))
+
     # Create the model folder if it is specified.
     if log_folder != "" and not os.path.exists(data_path + "fold_{}/{}/".format(fold_index, log_folder)):
         os.mkdir(data_path + "fold_{}/{}".format(fold_index, log_folder))
 
-    # Create the individual log folders.
+    # Create all of the the individual Tensorflow 1.12. log folders.
     if not os.path.exists(data_path + "fold_{}/{}/".format(fold_index, log_folder) + "checkpoints"):
         os.mkdir(data_path + "fold_{}/{}/".format(fold_index, log_folder) + "checkpoints")
     if not os.path.exists(data_path + "fold_{}/{}/".format(fold_index, log_folder) + "models"):
@@ -35,73 +36,109 @@ def get_summary_folders(data_path, fold_index, log_folder=""):
     if not os.path.exists(data_path + "fold_{}/{}/".format(fold_index, log_folder) + "summaries"):
         os.mkdir(data_path + "fold_{}/{}/".format(fold_index, log_folder) + "summaries")
 
-    # Return the path to the folder containing the log folders.
+    # Return the path to the folder containing the current fold log folders.
     return data_path + "fold_{}/{}/".format(fold_index, log_folder)
 
 
-# Done: 100%
-def create_model(tf_model_graph, input_tensor, model_params):
-    """ Create the multi-class classification model based on hyper-parameters specified in the input dictionary. """
+def get_model_configuration(fixed_model_ind, fold_ind, args):
+    """ Generates a more specific configuration dictionary for the neural network model that is going to be trained. The
+        parameter 'fixed_model_ind' [0, 5] dictates which fixed architecture is going to be used. The parameter
+        'fold_ind' [0, 4] dictates on which data fold the model is trained. """
+
+    # Define the default model hyper-parameter configuration.
+    model_hp_config = {
+
+        # Input data specifications.
+        "data_path": model_config,                              # Input data folder path.
+        "reaction_classes": args.dataset_config.final_classes,  # Reaction classes.
+        "fold_ind": fold_ind,                                   # Index of the current data fold.
+        "oversample": oversample,                               # Usage of dataset oversampling.
+
+        # General network specification.
+        "random_seed": 101,                                     # Random seed used for reproducibility purposes.
+        "learning_rate": 0.0005,                                # ADAM optimizer learning rate.
+        "max_num_epochs": 200,                                  # Maximum number of epochs.
+        "batch_size": 128,                                      # Batch size.
+        "early_stopping_interval": 10,                          # Number of epochs for early stopping detection.
+
+        # Input layer specifications.
+        "input_size": 1024,                                     # Input layer size.
+
+        # Hidden layers specifications.
+        "hidden_types": fixed_model[fixed_model_ind][1],        # Individual hidden layer sizes.
+        "hidden_sizes": fixed_model[fixed_model_ind][2],        # Individual hidden layer sizes.
+        "hidden_activations": fixed_model[fixed_model_ind][3],  # Hidden layer activation function.
+        "hidden_inits": fixed_model[fixed_model_ind][4],        # Hidden layer weight initialization function.
+        "hidden_dropouts": fixed_model[fixed_model_ind][5],     # Hidden layer dropout value.
+
+        # Output layer specifications.
+        "output_size": 11,                                      # Output layer size.
+        "output_activation": tf.nn.softmax,                     # Output layer activation function.
+        "output_init": tf.initializers.glorot_normal(),         # Output layer weight initialization function.
+
+        # Path to a folder to save the TensorFlow summaries of the trained network.
+        "main_log_folder": "model_methods/configurations_logs/multiclass_classification/"}
+
+    # Return the constructed hyper-parameter configuration.
+    return model_hp_config
+
+
+def create_model(tf_model_graph, input_tensor, model_args):
+    """ Creates a neural network multi-class classification model based on the specified hyper-parameters. """
+
+    tf_model_graph = tf.Graph()
+
+    print(model_args)
 
     # Initialize the TensorFlow graph.
     with tf_model_graph.as_default():
         # Construct the input layer according to the specifications.
         with tf.name_scope("input_layer"):
-            previous_layer = fully_connected_layer(input_tensor,
-                                                   model_params["input_size"],
-                                                   model_params["hidden_sizes"][0],
-                                                   0,
-                                                   activation=model_params["input_activation"],
-                                                   weight_init=model_params["input_init"])
-            # Add dropout if it is specified.
-            if model_params["input_dropout"] > 0.0:
-                previous_layer = tf.nn.dropout(previous_layer, keep_prob=model_params["input_dropout"])
+            previous_layer = fully_connected_layer(layer_index=0,
+                                                   layer_input=input_tensor,
+                                                   input_size=model_args.input_layer.size,
+                                                   output_size=model_args.hidden_layers[0].sizes[0])
 
         # Construct the hidden layers according to the specifications.
-        for layer_ind in range(model_params["num_hidden_layers"]):
-            with tf.name_scope("hidden_layer_{}".format(layer_ind)):
+        for layer_ind in range(len(model_args.hidden_layers)):
+            with tf.name_scope("hidden_layer_{}".format(layer_ind + 1)):
+                # Specify the type of the hidden layer.
+                if model_args.hidden_layers[0].types[layer_ind] == "fcl":
+                    hidden_layer_type = fully_connected_layer
+                else:
+                    hidden_layer_type = highway_layer
 
-                hidden_layer_fcn = fully_connected_layer if model_params["hidden_types"][layer_ind] == "fcl" \
-                    else highway_layer
+                previous_layer = hidden_layer_type(layer_index=layer_ind + 1,
+                                                   layer_input=previous_layer,
+                                                   input_size=model_args.hidden_layers[0].sizes[layer_ind],
+                                                   output_size=model_args.hidden_layers[0].sizes[layer_ind],
+                                                   activation_fcn=model_args.hidden_layers[0].activation_fcns[layer_ind])
 
-                previous_layer = hidden_layer_fcn(previous_layer,
-                                                  model_params["hidden_sizes"][layer_ind],
-                                                  model_params["hidden_sizes"][layer_ind],
-                                                  layer_ind + 1,
-                                                  activation=model_params["hidden_activations"][layer_ind],
-                                                  weight_init=model_params["hidden_inits"][layer_ind])
-
-                # Add dropout if it is specified.
-                if model_params["hidden_dropouts"][layer_ind] > 0.0:
-                    previous_layer = tf.nn.dropout(previous_layer, keep_prob=model_params["hidden_dropouts"][layer_ind])
+                # Add a dropout layer if it is specified.
+                if model_args.hidden_layers[0].dropouts[layer_ind] > 0.0:
+                    previous_layer = tf.nn.dropout(previous_layer, keep_prob=model_args.hidden_layers[0].dropouts[layer_ind])
 
         # Construct the output layer according to the specifications.
         with tf.name_scope("output_layer"):
-            output_layer = fully_connected_layer(previous_layer,
-                                                 model_params["hidden_sizes"][model_params["num_hidden_layers"] - 1],
-                                                 model_params["output_size"],
-                                                 model_params["num_hidden_layers"] + 1,
-                                                 activation=model_params["output_activation"],
-                                                 weight_init=model_params["output_init"])
+            output_layer = fully_connected_layer(layer_index=len(model_args.hidden_layers) + 1,
+                                                 layer_input=previous_layer,
+                                                 input_size=model_args.hidden_layers[0].sizes[len(model_args.hidden_layers) - 1],
+                                                 output_size=model_args.output_layer.size,
+                                                 activation_fcn=model_args.output_layer.activation_fcn)
 
         # Finally, return the output layer of the network.
         return output_layer
 
 
-# Done: 100%
 def define_optimization_operations(tf_model_graph, logits, labels, model_params):
-    """ Define the optimization operations for the multi-class classification model based on hyper-parameters specified
-    in the input dictionary. """
+    """ Defines the optimization operations for the multi-class classification model based on hyper-parameters specified
+        in the input dictionary. """
 
     # Initialize the TensorFlow graph.
     with tf_model_graph.as_default():
-        # Define the loss value calculation for the binary and multi-class classification case.
+        # Define the loss value calculation for multi-class classification.
         with tf.variable_scope("loss"):
-            if model_params["classification_type"] == "binary":
-                loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=labels))
-            else:
-                loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))
-
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels))
             tf.summary.scalar("cross_entropy_loss", loss)
 
         # Define and adjust the optimizer.
@@ -110,11 +147,7 @@ def define_optimization_operations(tf_model_graph, logits, labels, model_params)
 
         # Define the accuracy calculation for the binary and multi-class classification case.
         with tf.variable_scope("accuracy"):
-            if model_params["classification_type"] == "binary":
-                correct_prediction = tf.equal(logits, labels)
-            else:
-                correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
-
+            correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
             tf.summary.scalar("accuracy", accuracy)
 

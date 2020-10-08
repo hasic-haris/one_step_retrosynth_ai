@@ -12,11 +12,11 @@ import pandas as pd
 from collections import Counter
 from tqdm import tqdm
 
-from chem_methods.reactions import parse_reaction_roles
-from chem_methods.fingerprints import construct_ecfp, construct_hsfp
-from chem_methods.reaction_analysis import extract_info_from_reaction
-from chem_methods.reaction_cores import get_reaction_core_atoms, get_separated_cores
-from chem_methods.molecules import get_atom_environment, get_bond_environment
+from chemistry_methods.reactions import parse_reaction_roles
+from chemistry_methods.fingerprints import construct_ecfp, construct_hsfp
+from chemistry_methods.reaction_analysis import extract_info_from_reaction
+from chemistry_methods.reaction_cores import get_reaction_core_atoms, get_separated_cores
+from chemistry_methods.molecules import get_atom_environment, get_bond_environment
 from data_methods.data_handling import get_n_most_frequent_rows, encode_one_hot
 
 
@@ -401,18 +401,27 @@ def process_non_reactive_fingerprints(folder_path, fp_params, file_name, file_ro
     for item_name in os.listdir(folder_path):
         # Read only files which contain "_nr_" mark in their name.
         if file_name[0:-4] in item_name and file_role in item_name:
-            print("Aggregating the '{}' file.".format(item_name))
+            print("Aggregating the '{}' file...".format(item_name), end="")
+
             nr_fps = pd.read_pickle(folder_path + "/" + item_name).values
+
             # Convert the list of the non-reactive substructures to an np array for easy list indexing and select only
             # the n most frequent rows.
             nr_fps = nr_fps[get_n_most_frequent_rows(nr_fps, round(len(nr_fps) * keep_pct))].tolist()
             mode = "w" if done_ctr == 0 else "a"
+
             # Save the filtered non-reactive fingerprints.
             save_fingerprints_to_file(folder_path, fp_params, file_name, "nr", file_extension, nr_fps, mode=mode)
+
+            print("done.")
+
             # Delete the temporary file.
-            print("Deleting the '{}' file.".format(item_name))
+            print("Deleting the '{}' file...".format(item_name), end="")
+
             os.remove(folder_path + "/" + item_name)
             done_ctr += 1
+
+            print("done.")
 
 
 def generate_fingerprint_datasets(args):

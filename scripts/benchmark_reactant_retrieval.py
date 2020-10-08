@@ -6,9 +6,6 @@ Description: This script evaluates the reactant retrieval and scoring approach f
 
 from config import FullConfig
 
-from reactant_retrieval.reactant_retrieval_and_scoring import benchmark_reactant_candidate_retrieval
-
-
 config = FullConfig.load()
 
 # benchmark_reactant_candidate_retrieval(**input_params)

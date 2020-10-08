@@ -10,7 +10,7 @@ import numpy as np
 
 from collections import Counter
 
-from chem_methods.fingerprints import bulk_dice_similarity, bulk_tanimoto_similarity, bulk_tversky_similarity
+from chemistry_methods.fingerprints import bulk_dice_similarity, bulk_tanimoto_similarity, bulk_tversky_similarity
 
 
 # Done: 100%
@@ -245,7 +245,7 @@ def benchmark_reactant_candidate_retrieval(**kwargs):
     analyze_retrieved_elements(mol_class_dict, element_type="class")
 
 
-from chem_methods.fingerprints import construct_ecfp
+from chemistry_methods.fingerprints import construct_ecfp
 
 def get_combinations_for_single_mol(synthon_mols, reaction_class, **kwargs):
     """ Tests the accuracy of the reactant retrieval approach based on fingerprint similarity on the full dataset. """

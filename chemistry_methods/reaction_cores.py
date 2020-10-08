@@ -5,8 +5,8 @@ Description: This file contains functions for finding and extracting reaction co
 """
 
 from copy import deepcopy
-from chem_methods.reactions import parse_reaction_roles
-from chem_methods.molecules import molecule_is_mapped
+from chemistry_methods.reactions import parse_reaction_roles
+from chemistry_methods.molecules import molecule_is_mapped
 from data_methods.data_handling import merge_common
 
 

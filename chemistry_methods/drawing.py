@@ -11,7 +11,7 @@ from PIL import Image
 from cairosvg import svg2png
 import io
 
-from chem_methods.reactions import parse_reaction_roles
+from chemistry_methods.reactions import parse_reaction_roles
 
 
 def assign_colors_to_indices(indices_subsets):
