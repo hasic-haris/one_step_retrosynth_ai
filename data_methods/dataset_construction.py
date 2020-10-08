@@ -472,13 +472,13 @@ def create_final_fingerprint_datasets(args):
                         r_fp, nr_fp, r_bc, r_mc = None, None, None, None
 
                         for file_name in os.listdir(data_dir_path):
-                            if dataset_split in file_name and "_r" in file_name:
+                            if dataset_split in file_name and "data_r" in file_name:
                                 r_fp = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "_nr" in file_name:
+                            if dataset_split in file_name and "data_nr" in file_name:
                                 nr_fp = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "_bc" in file_name:
+                            if dataset_split in file_name and "data_bc" in file_name:
                                 r_bc = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "_mc" in file_name:
+                            if dataset_split in file_name and "data_mc" in file_name:
                                 r_mc = pd.read_pickle(data_dir_path + file_name).values
 
                         print(r_fp.shape)
