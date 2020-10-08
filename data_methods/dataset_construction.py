@@ -409,14 +409,14 @@ def generate_fingerprint_datasets(args):
             # Read all of the dataset splits for the current fold.
             for file_name in os.listdir(fold_dir_path):
                 if file_name.endswith(".pkl"):
-                    curr_dataset = pd.read_pickle(fold_dir_path + file_name)
+                    current_dataset = pd.read_pickle(fold_dir_path + file_name)
 
                     reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
                     non_reactive_fps = [[] for _ in range(0, len(args.descriptor_config.model_training))]
                     mc_lab = []
 
                     # Iterate through all of the rows of each dataset.
-                    for row_ind, row in tqdm(curr_dataset.iterrows(), total=len(curr_dataset.index),
+                    for row_ind, row in tqdm(current_dataset.iterrows(), total=len(current_dataset.index),
                                              desc="Generating data for '{}' - '{}'".format(directory_name, file_name)):
 
                         # Fetch the reactive and non-reactive substructures from the products of this reaction.
@@ -464,7 +464,7 @@ def create_final_fingerprint_datasets(args):
             for data_dir in os.listdir(fold_dir_path):
                 if not data_dir.endswith(".pkl"):
                     data_dir_path = fold_dir_path + data_dir + "/"
-                    print("Reading files from the '{}' folder.".format(fold_dir + "/" + data_dir +"/"))
+                    print("Reading datasets from the '{}' folder.".format("/" + fold_dir + "/" + data_dir + "/"))
 
                     # Finally, iterate through all of the files in the current dataset variant folder and read the
                     # reactive and non-reactive parts.
@@ -472,13 +472,13 @@ def create_final_fingerprint_datasets(args):
                         r_fp, nr_fp, r_bc, r_mc = None, None, None, None
 
                         for file_name in os.listdir(data_dir_path):
-                            if dataset_split in file_name and "r" in file_name:
+                            if dataset_split in file_name and "_r" in file_name:
                                 r_fp = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "nr" in file_name:
+                            if dataset_split in file_name and "_nr" in file_name:
                                 nr_fp = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "bc" in file_name:
+                            if dataset_split in file_name and "_bc" in file_name:
                                 r_bc = pd.read_pickle(data_dir_path + file_name).values
-                            if dataset_split in file_name and "mc" in file_name:
+                            if dataset_split in file_name and "_mc" in file_name:
                                 r_mc = pd.read_pickle(data_dir_path + file_name).values
 
                         # Filter the negative samples to the amount of the highest populated positive class.
