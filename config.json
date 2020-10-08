@@ -21,13 +21,13 @@
   "model_config":
   {
     "logs_folder": "/home/hhasic/projects/one_step_retrosynth_ai/model_methods/configurations_logs/",
-    "fixed_model": 0,
+    "fixed_model": 1,
     "random_seed": 101,
     "use_oversampling": "True",
     "learning_rate": 0.0005,
     "max_epochs": 200,
     "batch_size": 128,
-    "early_stopping": 20,
+    "early_stopping": 10,
     "input_layer": {"size": 1024},
     "output_layer": {"size": 11, "activation_fcn":  "tf.nn.softmax"},
     "hidden_layers":

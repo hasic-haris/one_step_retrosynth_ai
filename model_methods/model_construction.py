@@ -12,9 +12,11 @@ import tensorflow as tf
 import numpy as np
 
 from model_methods.layers import fully_connected_layer, highway_layer
-from model_methods.print_helpers import print_epoch_summary, print_early_stopping_info, print_training_summary
+from model_methods.print_helpers import print_epoch_summary, print_early_stopping_info
+from model_methods.print_helpers import print_training_summary, print_test_summary
 from data_methods.helpers import split_to_batches, read_datasets_from_fold
 from model_methods.scores import calculate_roc_values, calculate_prc_values
+from model_methods.visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
 
 
 def generate_log_folder(logs_folder_path, fold_index, log_folder_name):
@@ -160,14 +162,15 @@ def train_model(args, specific_fold=None, verbose=True):
             # Generate the necessary log folders to store models, checkpoints and summaries.
             log_folder = generate_log_folder(model_config["logs_folder"], fold_index, input_config["folder_name"])
 
-            # Read the training and validation data if it is not directly specified.
+            print("Preparing the training and validation sets...", end="")
+
+            # Read the training and validation sets.
             x_train, y_train, x_val, y_val, _, _ = read_datasets_from_fold(dataset_path=model_config["dataset_path"],
                                                                            fold_index=fold_index,
                                                                            input_config=input_config["folder_name"],
                                                                            use_oversampling=
                                                                            model_config["use_oversampling"])
-
-            print("Finished reading the data.")
+            print("done.")
 
             # Create the instance of the TensorFlow graph.
             tf_model_graph = tf.Graph()
@@ -292,3 +295,106 @@ def train_model(args, specific_fold=None, verbose=True):
             # Print the best epoch, average training loss, minimum validation loss, validation accuracy and validation
             # mean average precision score.
             print_training_summary(best_epoch, np.mean(epoch_loss), val_loss_min, val_acc_max, val_auc_max, val_map_max)
+
+
+def test_model(args, specific_fold=None, verbose=True):
+    """ Tests the multi-class classification model based on the specified hyper-parameters. """
+
+    # Generate the model configuration from the hyper-parameters specified in the config.json file.
+    model_config = generate_model_configuration(args)
+
+    # Get the folds on which the model will be trained.
+    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_fold is None else [specific_fold]
+
+    for fold_index in train_on_folds:
+        for input_config in model_config["input_configs"]:
+            # Generate the necessary log folders to store models, checkpoints and summaries.
+            log_folder = generate_log_folder(model_config["logs_folder"], fold_index, input_config["folder_name"])
+
+            # Read the test set.
+            _, _, _, _, x_test, y_test = read_datasets_from_fold(dataset_path=model_config["dataset_path"],
+                                                                 fold_index=fold_index,
+                                                                 input_config=input_config["folder_name"],
+                                                                 use_oversampling=False)
+
+            # Create the instance of the TensorFlow graph.
+            tf_model_graph = tf.Graph()
+
+            # Initialize the TensorFlow graph.
+            with tf_model_graph.as_default():
+                # Set random seed for reproducibility purposes.
+                tf.set_random_seed(model_config["random_seed"])
+
+                # Initialize the placeholders for the input and target values.
+                inputs = tf.placeholder(tf.float32, shape=[None, model_config["input_size"]], name="input")
+                targets = tf.placeholder(tf.float32, shape=[None, model_config["output_size"]], name="output")
+
+                # Create the TensorFlow model.
+                output_layer = create_model(tf_model_graph,
+                                            input_tensor=inputs,
+                                            model_config=model_config)
+
+                # Define the loss, optimizer and accuracy values for the TensorFlow model.
+                loss, accuracy, optimizer = define_optimization_operations(tf_model_graph,
+                                                                           logits=output_layer,
+                                                                           labels=targets,
+                                                                           model_config=model_config)
+
+                # Generate summary writers for testing.
+                summary_writer_test = tf.summary.FileWriter(log_folder + "summaries/testing", tf_model_graph)
+
+                # Create the session for the testing process.
+                with tf.Session(graph=tf_model_graph) as sess:
+                    # Create a saver instance to restore from the checkpoint.
+                    saver = tf.train.Saver(max_to_keep=1)
+
+                    # Initialize the global variables.
+                    sess.run(tf.global_variables_initializer())
+
+                    # Restore the model from the latest saved checkpoint.
+                    latest_checkpoint_path = tf.train.latest_checkpoint(log_folder + "checkpoints/")
+
+                    if latest_checkpoint_path:
+                        saver.restore(sess, latest_checkpoint_path)
+                    else:
+                        raise Exception("There are no proper checkpoints in order to restore the model.")
+
+                    # Calculate the accuracy and loss values for the test dataset.
+                    test_time = time.time()
+
+                    test_accuracy, test_loss, test_output = sess.run([accuracy, loss, output_layer],
+                                                                     feed_dict={
+                                                                         inputs: x_test,
+                                                                         targets: y_test
+                                                                     })
+
+                    # Add the numerical confusion matrix version to the summary.
+                    cm_summary, cm_num = plot_confusion_matrix(y_test.argmax(axis=1), test_output.argmax(axis=1),
+                                                               model_config["reaction_classes"], mode="numerical",
+                                                               tensor_name="confusion_matrix/num")
+                    summary_writer_test.add_summary(cm_summary)
+
+                    # Add the percentage confusion matrix version to the summary.
+                    cm_summary, cm_pct = plot_confusion_matrix(y_test.argmax(axis=1), test_output.argmax(axis=1),
+                                                               model_config["reaction_classes"], mode="percentage",
+                                                               tensor_name="confusion_matrix/pct")
+                    summary_writer_test.add_summary(cm_summary)
+
+                    # Add the Receiver-Operating-Characteristic curve plot to the summary.
+                    roc_summary, test_auc = plot_roc_curve(y_test, test_output, model_config["reaction_classes"],
+                                                           tensor_name='auc/receiver-operating-characteristic')
+                    summary_writer_test.add_summary(roc_summary)
+
+                    # Add the Precision-Recall curve plot to the summary.
+                    prc_summary, test_map = plot_prc_curve(y_test, test_output, model_config["reaction_classes"],
+                                                           tensor_name='auc/precision-recall')
+                    summary_writer_test.add_summary(prc_summary)
+
+                    # If indicated, print the test summary.
+                    if verbose:
+                        print_test_summary(time.time() - test_time, test_loss, test_accuracy, test_auc["micro"],
+                                           test_map["micro"])
+
+                    # Flush and close the summary writers.
+                    summary_writer_test.flush()
+                    summary_writer_test.close()

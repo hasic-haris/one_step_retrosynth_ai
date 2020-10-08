@@ -10,33 +10,24 @@ def print_epoch_summary(current_epoch, max_epochs, elapsed_time, train_loss, val
     """ Prints the summary of the current training epoch. """
 
     print("Epoch: {}/{}".format(current_epoch + 1, max_epochs))
-    print("------------------------------------------------------------------------------------------------------------"
-          "------------------------------------------------------------------------------------------------------------"
-          "------")
+    print("-------------")
     print("|  Epoch Time: {:3.2f}s".format(elapsed_time),
-          "  |  Train. Loss: {:1.3f}".format(train_loss),
-          "  |  Val. Loss: {:2.3f}".format(val_loss),
-          "  |  Val. Accuracy: {:2.2f}%".format(val_acc * 100),
-          "  |  Val. mAP: {:2.2f}%".format(val_map * 100),
-          "  |  Min. Loss: {:1.3f}".format(val_loss_min),
-          "  |  Max. Accuracy: {:2.2f}%".format(val_acc_max * 100),
-          "  |  Max. mAP: {:2.2f}%".format(val_map_max * 100),
-          "  |  Early Stopping Counter: {:2d}  |".format(steps_since_last_improvement))
-    print("------------------------------------------------------------------------------------------------------------"
-          "------------------------------------------------------------------------------------------------------------"
-          "------")
+          "  |  Training Loss: {:1.3f}".format(train_loss),
+          "  |  Validation Loss: {:2.3f}".format(val_loss),
+          "  |  Validation Accuracy: {:2.2f}%".format(val_acc * 100),
+          "  |  Validation mAP: {:2.2f}%".format(val_map * 100),
+          "  |  Minimum Loss: {:1.3f}".format(val_loss_min),
+          "  |  Maximum Accuracy: {:2.2f}%".format(val_acc_max * 100),
+          "  |  Maximum mAP: {:2.2f}%".format(val_map_max * 100),
+          "  |  Early Stopping Counter: {:2d}  |\n".format(steps_since_last_improvement))
 
 
 def print_early_stopping_info(current_epoch, early_stopping_interval):
     """ Prints the activation of the early stopping mechanism. """
 
-    print("------------------------------------------------------------------------------------------------------------"
-          "-----------------------------------------")
-    print("|  Early stopping activated in epoch {:2d}. Checkpoint saved.".format(current_epoch),
+    print("Early stopping activated in epoch {:2d}. Checkpoint saved.".format(current_epoch),
           "No improvement in validation accuracy in the last {} steps.".format(early_stopping_interval),
-          "Reverting back to epoch {:2d}.  |".format(current_epoch - early_stopping_interval))
-    print("------------------------------------------------------------------------------------------------------------"
-          "-----------------------------------------")
+          "Reverting back to epoch {:2d}.\n".format(current_epoch - early_stopping_interval))
 
 
 def print_training_summary(best_epoch, best_epoch_loss, val_loss_min, val_acc_max, val_auc_max, val_map_max):
