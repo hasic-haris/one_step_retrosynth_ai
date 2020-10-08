@@ -464,7 +464,7 @@ def create_final_fingerprint_datasets(args):
             for data_dir in os.listdir(fold_dir_path):
                 if not data_dir.endswith(".pkl"):
                     data_dir_path = fold_dir_path + data_dir + "/"
-                    print("Reading files from the '{}' folder.".format(data_dir))
+                    print("Reading files from the '{}' folder.".format(fold_dir + "/" + data_dir +"/"))
 
                     # Finally, iterate through all of the files in the current dataset variant folder and read the
                     # reactive and non-reactive parts.
@@ -492,6 +492,9 @@ def create_final_fingerprint_datasets(args):
                         nr_mc[:, 0] = 1.
 
                         print("done.")
+
+                        print(r_fp.shape)
+                        print(nr_fp.shape)
 
                         # Aggregate the reactive and non-reactive fingerprints.
                         print("Aggregating and saving the data for the {} set...".format(dataset_split), end="")
