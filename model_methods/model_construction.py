@@ -149,8 +149,6 @@ def train_model(args, specific_fold=None, verbose=True):
     """ Trains the multi-class classification model based on the specified hyper-parameters. The default setting is to
         train the model on all folds. Use the 'specific_fold' parameter to train the model only on one specific fold."""
 
-    tf.logging.set_verbosity(tf.logging.ERROR)
-
     # Generate the model configuration from the hyper-parameters specified in the config.json file.
     model_config = generate_model_configuration(args)
 
@@ -293,4 +291,4 @@ def train_model(args, specific_fold=None, verbose=True):
 
             # Print the best epoch, average training loss, minimum validation loss, validation accuracy and validation
             # mean average precision score.
-            print_training_summary(best_epoch, epoch_loss, val_loss_min, val_acc_max, val_auc_max, val_map_max)
+            print_training_summary(best_epoch, np.mean(epoch_loss), val_loss_min, val_acc_max, val_auc_max, val_map_max)
