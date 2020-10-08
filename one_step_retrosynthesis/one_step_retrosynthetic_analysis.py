@@ -11,7 +11,7 @@ from chemistry_methods.fingerprints import construct_hsfp
 from chemistry_methods.reaction_analysis import extract_info_from_molecule
 from model_methods.tf_model_construction import test_model
 from model_methods.tf_main import generate_model_hp_config
-from retrosynthesis_methods.reactant_retrieval_and_scoring import get_combinations_for_single_mol
+from one_step_retrosynthesis.reactant_retrieval_and_scoring import get_combinations_for_single_mol
 
 
 

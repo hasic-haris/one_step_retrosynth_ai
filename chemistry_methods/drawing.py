@@ -116,18 +116,18 @@ def draw_reaction(rxn, show_reagents=True, reaction_cores=None, im_size_x=300, i
             mol_images.append(draw_molecule(reactant, im_size_x, im_size_y))
 
         if r_ind == len(reactants) - 1:
-            mol_images.append(Image.open("assets/arr.png"))
+            mol_images.append(Image.open("assets/arrow.png"))
         else:
-            mol_images.append(Image.open("assets/pls.png"))
+            mol_images.append(Image.open("assets/plus.png"))
 
     # If specified, draw all agent molecules in similar fashion as the reactants.
     if len(reagents) > 0 and show_reagents:
         for rg_ind, reagent in enumerate(reagents):
             mol_images.append(draw_molecule(reagent, im_size_x, im_size_y))
             if rg_ind == len(reagents) - 1:
-                mol_images.append(Image.open("assets/arr.png"))
+                mol_images.append(Image.open("assets/arrow.png"))
             else:
-                mol_images.append(Image.open("assets/pls.png"))
+                mol_images.append(Image.open("assets/plus.png"))
 
     # Draw all product molecules.
     for p_ind, product in enumerate(products):
@@ -136,7 +136,7 @@ def draw_reaction(rxn, show_reagents=True, reaction_cores=None, im_size_x=300, i
         else:
             mol_images.append(draw_molecule(product, im_size_x, im_size_y, highlight_atoms=[]))
         if p_ind != len(products) - 1:
-            mol_images.append(Image.open("assets/pls.png"))
+            mol_images.append(Image.open("assets/plus.png"))
 
     # Adjust the widths and the heights of the images and generate the final images.
     widths, heights = zip(*(i.size for i in mol_images))
@@ -160,13 +160,13 @@ def draw_reaction(rxn, show_reagents=True, reaction_cores=None, im_size_x=300, i
     return new_im
 
 
-def draw_fingerprint_substructures(mol, radius, from_atoms=None, imsize_x=250, imsize_y=250):
+def draw_fingerprint_substructures(mol, radius, from_atoms=None, im_size_x=250, im_size_y=250):
     """ Draws the fingerprint substructures of a molecule for a specified radius. """
 
     # Check if the input molecule is given in SMILES or in the RDKit Mol format.
     if isinstance(mol, str):
         try:
-            # Generate the RDKit 'Mol' object from the input SMILES string.
+            # Generate the RDKit Mol object from the input SMILES string.
             mol = AllChem.MolFromSmiles(mol)
             # Sanitize the molecule.
             AllChem.SanitizeMol(mol)
@@ -179,7 +179,7 @@ def draw_fingerprint_substructures(mol, radius, from_atoms=None, imsize_x=250, i
     on_bits = [(mol, x, bit_info) for x in fp.GetOnBits()]
 
     # Create the drawer object only for active bits.
-    drawer = Draw.DrawMorganBits(on_bits, molsPerRow=3, subImgSize=(imsize_x, imsize_y),
+    drawer = Draw.DrawMorganBits(on_bits, molsPerRow=3, subImgSize=(im_size_x, im_size_y),
                                  legends=[str(x) for x in fp.GetOnBits()])
     # Modify the .svg string.
     svg = drawer.replace("svg:", "")

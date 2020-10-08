@@ -17,7 +17,7 @@ from chemistry_methods.fingerprints import construct_ecfp, construct_hsfp
 from chemistry_methods.reaction_analysis import extract_info_from_reaction
 from chemistry_methods.reaction_cores import get_reaction_core_atoms, get_separated_cores
 from chemistry_methods.molecules import get_atom_environment, get_bond_environment
-from data_methods.data_handling import get_n_most_frequent_rows, encode_one_hot
+from data_methods.helpers import get_n_most_frequent_rows, encode_one_hot
 
 
 def generate_unique_compound_pools(args):

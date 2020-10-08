@@ -7,7 +7,7 @@ Description: This file contains functions for finding and extracting reaction co
 from copy import deepcopy
 from chemistry_methods.reactions import parse_reaction_roles
 from chemistry_methods.molecules import molecule_is_mapped
-from data_methods.data_handling import merge_common
+from data_methods.helpers import merge_common
 
 
 def same_neighbourhood_size(atom_index_1, molecule_1, atom_index_2, molecule_2):

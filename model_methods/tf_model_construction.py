@@ -11,8 +11,8 @@ import time
 import os
 
 from model_methods.layers import fully_connected_layer, highway_layer
-from model_methods.tf_model_print_functions import print_epoch_summary, print_early_stopping_info, print_test_summary
-from data_methods.data_handling import split_to_batches, read_datasets_from_fold
+from model_methods.print_helpers import print_epoch_summary, print_early_stopping_info, print_test_summary
+from data_methods.helpers import split_to_batches, read_datasets_from_fold
 from model_methods.visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
 from model_methods.scores import calculate_roc_values, calculate_prc_values
 

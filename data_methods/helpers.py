@@ -1,7 +1,7 @@
 """
 Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 21st, 2020
-Description: This file contains necessary functions for easier data processing.
+Description: This file contains necessary functions for alleviating easier data processing.
 """
 
 import numpy as np

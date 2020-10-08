@@ -9,9 +9,9 @@ import pandas as pd
 import numpy as np
 
 from model_methods.tf_model_construction import train_model, test_model
-from data_methods.data_handling import read_datasets_from_fold
+from data_methods.helpers import read_datasets_from_fold
 from data_methods.dataset_construction import generate_fps_from_reaction_products
-from data_methods.data_handling import encode_one_hot
+from data_methods.helpers import encode_one_hot
 
 
 # Done: 100%
