@@ -493,9 +493,6 @@ def create_final_fingerprint_datasets(args):
 
                         print("done.")
 
-                        print(r_fp.shape)
-                        print(nr_fp.shape)
-
                         # Aggregate the reactive and non-reactive fingerprints.
                         print("Aggregating and saving the data for the {} set...".format(dataset_split), end="")
 
@@ -512,4 +509,4 @@ def create_final_fingerprint_datasets(args):
                         y_mc = np.vstack((r_mc, nr_mc))
                         pd.to_pickle(pd.DataFrame(y_mc), data_dir_path + "y_mc_{}.pkl".format(dataset_split))
 
-                        print("done. Shape: {}".format(str(y_mc.shape)))
+                        print("done. Shapes: {} and {}".format(str(y_mc.shape), str(y_bc.shape)))
