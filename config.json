@@ -20,7 +20,7 @@
 
   "model_config":
   {
-    "logs_folder": "model_methods/configurations_logs/",
+    "logs_folder": "~/projects/one_step_retrosynthesis_ai/model_methods/configurations_logs/",
     "fixed_model": 0,
     "random_seed": 101,
     "use_oversampling": "True",
