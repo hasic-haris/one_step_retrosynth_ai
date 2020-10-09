@@ -61,6 +61,6 @@ def print_cross_validation_summary(cv_results):
         print("\nModel trained on the '{}' input configuration.".format(input_config))
         print("------------------------------------------------")
         print("Average Test Loss: {:1.3f}".format(np.mean([v[0] for v in cv_results[input_config].values()])),
-              "  |  Average Test Accuracy: {:2.2f}%".format(np.mean([v[2] for v in cv_results[input_config].values()])),
-              "  |  Average Test ROC-AUC: {:2.2f}%".format(np.mean([v[3] for v in cv_results[input_config].values()])),
-              "  |  Average Test mAP: {:2.2f}%\n".format(np.mean([v[4] for v in cv_results[input_config].values()])))
+              "  |  Average Test Accuracy: {:2.2f}%".format(np.mean([v[1] for v in cv_results[input_config].values()])),
+              "  |  Average Test ROC-AUC: {:2.2f}%".format(np.mean([v[2] for v in cv_results[input_config].values()])),
+              "  |  Average Test mAP: {:2.2f}%\n".format(np.mean([v[3] for v in cv_results[input_config].values()])))
