@@ -5,7 +5,6 @@ Description: This file contains necessary functions for constructing and similar
 """
 
 import numpy as np
-
 from rdkit.Chem import AllChem, DataStructs
 from rdkit.DataStructs import cDataStructs
 

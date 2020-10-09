@@ -1,26 +1,24 @@
 """
-Author:      Hasic Haris (Phd Student @ Ishida Lab, Department of Computer Science, Tokyo Institute of Technology)
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
 Created on:  February 21st, 2020
-Description: This file contains functions for the retrieval and scoring of potential reactant candidates.
+Description: This file contains necessary functions for the retrieval and scoring of potential reactant candidates.
 """
-import itertools
 
+import itertools
 import pandas as pd
 import numpy as np
-
 from collections import Counter
 
 from chemistry_methods.fingerprints import bulk_dice_similarity, bulk_tanimoto_similarity, bulk_tversky_similarity
 
 
-# Done: 100%
 def fetch_n_similar_compounds(synthon_ind, synthon_mols, synthon_fps, search_pool, reaction_class, uq_class_ids,
                               use_class=False, use_size=False, cut_off=0.1, top_n=None, fetch_priority="similar",
                               similarity_metric="tanimoto", a=0.5, b=1.0):
     """ Returns the Top-N similar compounds and their similarity scores for a given pattern compound. The pattern
     compound should ideally be a SMARTS Mol object in order to enable superstructure searching. """
 
-    # Extract the 'Mol' object and fingerprint of the pattern molecule.
+    # Extract the Rdkit Mol object and fingerprint of the pattern molecule.
     pattern_mol = synthon_mols[synthon_ind]
     pattern_mol_fp = synthon_fps[synthon_ind]
 

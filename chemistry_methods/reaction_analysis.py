@@ -6,7 +6,6 @@ Description: This file contains necessary functions for the analysis of chemical
 """
 
 from copy import deepcopy
-
 from rdkit.Chem import AllChem
 
 from chemistry_methods.reactions import parse_reaction_roles

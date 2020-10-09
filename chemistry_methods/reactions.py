@@ -5,7 +5,6 @@ Description: This file contains necessary functions for handling chemical reacti
 """
 
 import re
-
 from rdkit.Chem import AllChem
 
 

@@ -6,7 +6,6 @@ Description: This file contains necessary functions for alleviating easier data 
 
 import numpy as np
 import pandas as pd
-
 from collections import defaultdict
 from sklearn import utils
 from imblearn.over_sampling import SMOTE

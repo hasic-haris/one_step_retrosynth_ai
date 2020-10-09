@@ -5,7 +5,6 @@ Description: This file contains necessary functions for the handling of molecule
 """
 
 import re
-
 from rdkit.Chem import AllChem
 
 

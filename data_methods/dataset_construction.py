@@ -452,7 +452,7 @@ def generate_fingerprint_datasets(args):
                                                   "pkl", mc_lab)
 
 
-def create_final_fingerprint_datasets(args):
+def create_model_training_datasets(args):
     """ Aggregates the reactive and non-reactive parts to create the final input dataset for the network. """
 
     # Iterate through all of the generated 'n-fold' folders.
@@ -510,3 +510,14 @@ def create_final_fingerprint_datasets(args):
                         pd.to_pickle(pd.DataFrame(y_mc), data_dir_path + "y_mc_{}.pkl".format(dataset_split))
 
                         print("done. Shapes: {} and {}".format(str(y_mc.shape), str(y_bc.shape)))
+
+
+def create_final_evaluation_dataset(args):
+
+    fold_index = 5
+
+    input_config = "hsfp_2_2_1024"
+    test_data = pd.read_pickle(args.dataset_config.output_folder + "fold_{}/test_data.pkl".format(fold_index))
+    print(test_data.columns)
+
+    return None

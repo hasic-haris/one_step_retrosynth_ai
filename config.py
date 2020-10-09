@@ -1,3 +1,9 @@
+"""
+Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
+Created on:  October 4th, 2020
+Description: This script encapsulates all of the configuration parameters as a Python Class.
+"""
+
 import json
 from argparse import ArgumentParser
 from typing import NamedTuple, Optional

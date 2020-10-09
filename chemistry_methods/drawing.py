@@ -4,12 +4,11 @@ Created on:  November 9th, 2019
 Explanation: This file contains necessary functions that help with the visualization of molecules and reactions.
 """
 
-from rdkit.Chem import AllChem, Draw, rdMolDescriptors
-from rdkit.Chem.Draw import rdMolDraw2D
-
+import io
 from PIL import Image
 from cairosvg import svg2png
-import io
+from rdkit.Chem import AllChem, Draw, rdMolDescriptors
+from rdkit.Chem.Draw import rdMolDraw2D
 
 from chemistry_methods.reactions import parse_reaction_roles
 
@@ -48,7 +47,7 @@ def draw_molecule(mol, im_size_x=300, im_size_y=200, highlight_atoms=None, highl
     # Check if the input molecule is given in SMILES or in the RDKit 'Mol' format.
     if isinstance(mol, str):
         try:
-            # Generate the RDKit 'Mol' object from the input SMILES string.
+            # Generate the RDKit Mol object from the input SMILES string.
             mol = AllChem.MolFromSmiles(mol)
             # Sanitize the molecule.
             AllChem.SanitizeMol(mol)

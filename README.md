@@ -3,12 +3,12 @@ A novel, template-free approach for the one-step retrosynthesis task described i
 currently under review. Depending on the journal decision, the link will be posted here.
 
 ### Running the Code
-This repository is still raw and under construction as far as user-friendliness goes. 
+This repository is still raw and under construction, but the authors are actively working on it. 
 For now, the individual functions need to be executed manually according to the short description in the ```main.py``` file. 
 In time, appropriate scripts will be written and the user manual will be posted. 
 
 #### Installation
-[Install Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/), create and activate your environment by running:
+Install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/), create and activate your environment by running:
 
 ```shell script
 conda env create -f environment.yml
@@ -29,7 +29,7 @@ python -m scripts.prepare_dataset config.json
 The process consists out of 5 steps and the final dataset is saved in the folder specified in the configuration. 
 
 #### 2. Model Training
-The specified model can be trained by running the following command:
+The specified model can be trained and assessed by running the following command:
 
 ```shell script
 python -m scripts.train_model config.json

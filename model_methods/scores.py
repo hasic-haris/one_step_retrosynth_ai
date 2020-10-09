@@ -5,7 +5,6 @@ Description: This file contains the TensorFlow 1.12 neural network precision, re
 """
 
 import numpy as np
-
 from sklearn import metrics
 
 

@@ -7,10 +7,8 @@ Description: This file contains the TensorFlow 1.12 neural network visualization
 import re
 import itertools
 import tfplot
-
 import numpy as np
 import matplotlib.pyplot as plt
-
 from textwrap import wrap
 from itertools import cycle
 
