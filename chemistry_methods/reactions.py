@@ -132,5 +132,5 @@ def parse_reaction_roles(rxn_smiles, as_what="smiles"):
     # Raise exception for any other keyword.
     else:
         raise Exception("Unknown parsing type. Select one of the following: "
-                        "'smiles', 'smiles_no_maps', 'canonical_smiles', 'canonical_smiles_no_maps', "
-                        "'mol', 'atom_maps', 'mapping_numbers'.")
+                        "'smiles', 'smiles_no_maps', 'atom_maps', 'mapping_numbers', 'mol', 'mol_no_maps', "
+                        "'canonical_smiles', 'canonical_smiles_no_maps'.")

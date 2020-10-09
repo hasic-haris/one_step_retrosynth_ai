@@ -523,7 +523,7 @@ def create_final_evaluation_dataset(args):
     for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
                              desc="Generating non-filtered version of the test dataset"):
         # Select only products from the reaction.
-        _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="canonical_mol_no_maps")
+        _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="mol_no_maps")
         products_reaction_cores = get_reaction_core_atoms(row["reaction_smiles"])[1]
 
         for p_ind, product in enumerate(products):
