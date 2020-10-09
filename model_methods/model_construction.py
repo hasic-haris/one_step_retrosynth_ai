@@ -277,7 +277,7 @@ def train_model(args, specific_fold=None, verbose=True):
                         if verbose:
                             print_epoch_summary(current_epoch, model_config["max_epochs"], time.time() - epoch_time,
                                                 np.mean(epoch_loss), np.mean(epoch_accuracy), val_loss, val_accuracy,
-                                                val_map, early_stop_ctr)
+                                                val_auc, val_map, early_stop_ctr)
 
                         # Check whether the early stopping condition is met and create a checkpoint for this epoch.
                         if val_loss < val_loss_min or (val_loss == val_loss_min and val_map >= val_map_max):
