@@ -249,8 +249,7 @@ def expand_reaction_dataset(args):
     print("Saving the generated compound data...", end="")
 
     # Save the final reaction dataset as in .pkl or .csv format.
-    raw_dataset.to_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
-    # raw_dataset.to_csv(args.dataset_config.output_folder + "final_reaction_dataset.csv", index=False)
+    raw_dataset.to_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
 
     print("done.")
 
@@ -258,13 +257,13 @@ def expand_reaction_dataset(args):
 def generate_dataset_splits(args):
     """ Generates training and test splits for the n-fold cross validation process in the ratio 80:20. """
 
-    # Read the raw chemical reaction dataset.
-    raw_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
+    # Read the processed chemical reaction dataset.
+    processed_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
     folds = [[] for _ in range(args.dataset_config.num_folds)]
 
-    for cls in np.unique(raw_dataset["reaction_class"].values):
+    for cls in np.unique(processed_dataset["reaction_class"].values):
         # Select the subset of data with the respective class label.
-        class_subset = raw_dataset.loc[raw_dataset["reaction_class"] == cls]
+        class_subset = processed_dataset.loc[processed_dataset["reaction_class"] == cls]
 
         # Shuffle this subset with a specified seed value.
         class_subset = class_subset.sample(frac=1, random_state=args.dataset_config.random_seed)
@@ -285,17 +284,17 @@ def generate_dataset_splits(args):
             os.makedirs(directory_path)
 
         # Split the remaining indices into training and validation sets.
-        training_indices = set(raw_dataset.index.values).difference(test_indices)
+        training_indices = set(processed_dataset.index.values).difference(test_indices)
         validation_indices = random.sample(training_indices,
-                                           k=round(len(raw_dataset) * args.dataset_config.validation_split))
+                                           k=round(len(processed_dataset) * args.dataset_config.validation_split))
         training_indices = list(training_indices.difference(validation_indices))
 
         # Save all of the datasets for each respective fold.
-        raw_dataset.iloc[training_indices, :].sort_values("reaction_class"). \
+        processed_dataset.iloc[training_indices, :].sort_values("reaction_class"). \
             to_pickle(directory_path + "training_data.pkl".format(fold_index + 1))
-        raw_dataset.iloc[validation_indices, :].sort_values("reaction_class"). \
+        processed_dataset.iloc[validation_indices, :].sort_values("reaction_class"). \
             to_pickle(directory_path + "validation_data.pkl".format(fold_index + 1))
-        raw_dataset.iloc[test_indices, :].sort_values("reaction_class"). \
+        processed_dataset.iloc[test_indices, :].sort_values("reaction_class"). \
             to_pickle(directory_path + "test_data.pkl".format(fold_index + 1))
 
         print("done.")
@@ -513,10 +512,17 @@ def create_model_training_datasets(args):
 
 def create_final_evaluation_dataset(args):
 
-    fold_index = 5
+    fold_ind = 5
 
-    input_config = "hsfp_2_2_1024"
-    test_data = pd.read_pickle(args.dataset_config.output_folder + "fold_{}/test_data.pkl".format(fold_index))
-    print(test_data.columns)
+    # Read the processed chemical reaction dataset.
+    test_dataset = pd.read_pickle(args.dataset_config.output_folder + "fold_{}/test_data.pkl".format(fold_ind))
 
-    return None
+    print(test_dataset.columns)
+
+    exit()
+
+    #for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
+    #                         desc="Generating non-filtered version of the test dataset"):
+
+
+    #return None

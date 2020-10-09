@@ -46,6 +46,12 @@ class ModelConfig(NamedTuple):
     hidden_layers: list
 
 
+class EvaluationConfig(NamedTuple):
+
+    best_fold: int
+    best_model: int
+
+
 class FullConfig(NamedTuple):
 
     dataset_config: DatasetsConfig

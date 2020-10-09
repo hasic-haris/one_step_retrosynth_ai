@@ -50,5 +50,11 @@
        "activation_fcns": ["tf.nn.elu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu", "tf.nn.relu"],
        "dropouts":  [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]}
     ]
+  },
+
+  "evaluation_config":
+  {
+    "logs_folder": "/home/hhasic/projects/one_step_retrosynth_ai/model_methods/configurations_logs/",
+    "fixed_model": 0
   }
 }

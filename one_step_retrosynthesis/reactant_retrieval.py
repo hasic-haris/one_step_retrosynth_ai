@@ -141,7 +141,8 @@ def benchmark_reactant_candidate_retrieval(args):
     """ Tests the accuracy of the reactant retrieval approach based on fingerprint similarity on the full dataset. """
 
     # Read the needed datasets.
-    final_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
+    # final_training_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
+    final_training_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
     reactant_search_pool = pd.read_pickle(args.dataset_config.output_folder + "unique_reactants_pool.pkl")
 
     unique_class_groups = {}
@@ -156,7 +157,7 @@ def benchmark_reactant_candidate_retrieval(args):
     mol_class_dict = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
     fetch_per_position = {0: 1, 1: 50, 2: 50}
 
-    for row_ind, row in tqdm(final_dataset.iterrows(), total=len(final_dataset.index),
+    for row_ind, row in tqdm(final_training_dataset.iterrows(), total=len(final_training_dataset.index),
                              desc="Evaluating the reactant retrieval and scoring on the full final dataset"):
         # Sort the synthons per atom count and fetch all of the needed data.
         synthon_mols, synthon_fps, synthon_maps = zip(*sorted(zip(row["products_non_reactive_smals"],
