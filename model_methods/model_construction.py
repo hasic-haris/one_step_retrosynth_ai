@@ -314,9 +314,8 @@ def test_model(args, specific_folds=None, verbose=True):
 
     # Get the folds on which the model will be trained.
     train_on_folds = range(1, args.dataset_config.num_folds + 1) if specific_folds is None else specific_folds
-    cross_validation_performance = dict()
 
-    print(train_on_folds)
+    cross_validation_performance = dict()
 
     for fold_index in train_on_folds:
         for input_config in model_config["input_configs"]:
@@ -402,7 +401,10 @@ def test_model(args, specific_folds=None, verbose=True):
                                                            tensor_name='auc/precision-recall')
                     summary_writer_test.add_summary(prc_summary)
 
-                    cross_validation_performance[input_config["folder_name"]] = dict()
+                    # Add test summary to the cross-validation performance analysis data.
+                    if input_config["folder_name"] not in cross_validation_performance.keys():
+                        cross_validation_performance[input_config["folder_name"]] = dict()
+
                     cross_validation_performance[input_config["folder_name"]][fold_index] = [test_loss,
                                                                                              test_accuracy,
                                                                                              test_auc["micro"],
