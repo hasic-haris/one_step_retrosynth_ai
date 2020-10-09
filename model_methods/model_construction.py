@@ -209,7 +209,8 @@ def train_model(args, specific_fold=None, verbose=True):
                 summary_writer_val = tf.summary.FileWriter(log_folder + "summaries/validation", tf_model_graph)
 
                 # Define variables to later store results.
-                val_loss_min, val_acc_max, val_auc_max, val_map_max, best_epoch, early_stop_ctr = 100000, 0, 0, 0, 0, 0
+                curr_train_loss, curr_train_acc, val_loss_min, val_acc_max, val_auc_max, val_map_max, best_epoch, \
+                    early_stop_ctr = 0, 0, 100, 0, 0, 0, 0, 0
 
                 # Initialize the TensorFlow session with the constructed graph.
                 with tf.Session(graph=tf_model_graph) as sess:
@@ -221,6 +222,8 @@ def train_model(args, specific_fold=None, verbose=True):
 
                     # Initialize the global variables.
                     sess.run(tf.global_variables_initializer())
+
+                    training_time = time.time()
 
                     # Iterate through the specified number of epochs.
                     for current_epoch in range(model_config["max_epochs"]):
@@ -273,16 +276,18 @@ def train_model(args, specific_fold=None, verbose=True):
                         # If indicated, print the epoch summary.
                         if verbose:
                             print_epoch_summary(current_epoch, model_config["max_epochs"], time.time() - epoch_time,
-                                                np.mean(epoch_loss), val_loss, val_accuracy, val_map, val_loss_min,
-                                                val_acc_max, val_map_max, early_stop_ctr)
+                                                np.mean(epoch_loss), np.mean(epoch_accuracy), val_loss, val_accuracy,
+                                                val_map, early_stop_ctr)
 
                         # Check whether the early stopping condition is met and create a checkpoint for this epoch.
                         if val_loss < val_loss_min or (val_loss == val_loss_min and val_map >= val_map_max):
                             saver.save(sess, log_folder + "checkpoints/", global_step=current_epoch)
 
                             # Reset the counter and update the information about the best epoch, loss and accuracy.
-                            early_stop_ctr, val_loss_min, val_acc_max, val_auc_max, val_map_max, best_epoch = \
-                                0, val_loss, val_accuracy, val_auc, val_map, current_epoch
+                            early_stop_ctr, best_epoch = 0, current_epoch
+                            curr_train_loss, curr_train_acc = np.mean(epoch_loss), np.mean(epoch_accuracy)
+                            val_loss_min, val_acc_max, val_auc_max, val_map_max = \
+                                val_loss, val_accuracy, val_auc, val_map
                         else:
                             early_stop_ctr += 1
 
@@ -298,9 +303,9 @@ def train_model(args, specific_fold=None, verbose=True):
                     summary_writer_tr.close()
                     summary_writer_val.close()
 
-            # Print the best epoch, average training loss, minimum validation loss, validation accuracy and validation
-            # mean average precision score.
-            print_training_summary(best_epoch, np.mean(epoch_loss), val_loss_min, val_acc_max, val_auc_max, val_map_max)
+            # Print the training process summary.
+            print_training_summary(time.time() - training_time, best_epoch, curr_train_loss, curr_train_acc,
+                                   val_loss_min, val_acc_max, val_auc_max, val_map_max)
 
 
 def test_model(args, specific_fold=None, verbose=True):
