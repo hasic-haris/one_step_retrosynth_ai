@@ -8,7 +8,7 @@ from config import FullConfig
 from model_methods.model_construction import train_model, test_model
 
 
-#full_config = FullConfig.load()
+full_config = FullConfig.load()
 
 #print("\nStep 1/2: Train the models with the specified hyper-parameters.\n")
 #train_model(full_config, specific_folds=[1, 2])
