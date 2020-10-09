@@ -400,9 +400,11 @@ def test_model(args, specific_folds=None, verbose=True):
                                                            tensor_name='auc/precision-recall')
                     summary_writer_test.add_summary(prc_summary)
 
-                    cross_validation_performance[input_config] = dict()
-                    cross_validation_performance[input_config][fold_index] = [test_loss, test_accuracy,
-                                                                              test_auc["micro"], test_map["micro"]]
+                    cross_validation_performance[input_config["folder_name"]] = dict()
+                    cross_validation_performance[input_config["folder_name"]][fold_index] = [test_loss,
+                                                                                             test_accuracy,
+                                                                                             test_auc["micro"],
+                                                                                             test_map["micro"]]
 
                     # If indicated, print the test summary.
                     if verbose:
