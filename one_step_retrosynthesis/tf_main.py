@@ -87,8 +87,6 @@ def generate_model_hp_config(input_fp_data, oversample, fixed_model_ind=0, class
     return model_hp_config
 
 
-
-
 # Done: 0%
 def hyperparameter_tuning():
 

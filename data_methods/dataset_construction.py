@@ -513,16 +513,42 @@ def create_model_training_datasets(args):
 def create_final_evaluation_dataset(args):
 
     fold_ind = 5
+    fp_config = {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"}
 
-    # Read the processed chemical reaction dataset.
+    # Read the test dataset from the specified fold.
     test_dataset = pd.read_pickle(args.dataset_config.output_folder + "fold_{}/test_data.pkl".format(fold_ind))
+    evaluation_data = []
 
-    print(test_dataset.columns)
+    # Iterate through the d
+    for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
+                             desc="Generating non-filtered version of the test dataset"):
+        # Select only products from the reaction.
+        _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="canonical_smiles_no_maps")
+        products_reaction_cores = get_reaction_core_atoms(row["reaction_smiles"])[1]
 
-    exit()
+        for p_ind, product in enumerate(products):
+            for bond in product.GetBonds():
 
-    #for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
-    #                         desc="Generating non-filtered version of the test dataset"):
+                if fp_config["type"] == "ecfp":
+                    bond_fp = construct_ecfp(product, radius=fp_config["radius"], bits=fp_config["bits"],
+                                             from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
+                                             output_type="np_array", as_type="np_float")
+                else:
+                    bond_fp = construct_hsfp(product, radius=fp_config["radius"], bits=fp_config["bits"],
+                                             from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
+                                             neighbourhood_ext=fp_config["ext"])
 
+                if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
+                        bond.GetEndAtomIdx() in products_reaction_cores[p_ind]:
+                    in_core = True
+                else:
+                    in_core = False
 
-    #return None
+                evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
+                                        row["reaction_class"], row["reactants_uq_mol_maps"]])
+
+    data = pd.DataFrame(evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
+                                                  "reaction_class", "reactants_uq_mol_maps"])
+    print(data.head(100))
+
+    data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
