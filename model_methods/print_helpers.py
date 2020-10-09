@@ -54,13 +54,14 @@ def print_test_summary(test_time, test_loss, test_acc, test_roc_auc, test_map):
           "  |  Test mAP: {:2.2f}%\n".format(test_map * 100))
 
 
-def print_cross_validation_summary(cv_results):
-    """ Prints the model performance summary on the test set. """
+def print_cross_validation_summary(cv_perf):
+    """ Prints the model performance across all trained folds. """
 
-    for input_config in cv_results.keys():
-        print("\nModel trained on the '{}' input configuration.".format(input_config))
+    for desc_config in cv_perf.keys():
+        print("\nModel trained on the '{}' input configuration.".format(desc_config))
         print("------------------------------------------------")
-        print("Average Test Loss: {:1.3f}".format(np.mean([v[0] for v in cv_results[input_config].values()])),
-              "  |  Average Test Accuracy: {:2.2f}%".format(np.mean([v[1] for v in cv_results[input_config].values()])),
-              "  |  Average Test ROC-AUC: {:2.2f}%".format(np.mean([v[2] for v in cv_results[input_config].values()])),
-              "  |  Average Test mAP: {:2.2f}%\n".format(np.mean([v[3] for v in cv_results[input_config].values()])))
+        print("Best Performing Fold: {:2d}".format(np.argmin([v[0] for v in cv_perf[desc_config].values()]) + 1),
+              "  |  Avg. Test Loss: {:1.3f}".format(np.mean([v[0] for v in cv_perf[desc_config].values()])),
+              "  |  Avg. Test Accuracy: {:2.2f}%".format(np.mean([v[1] * 100 for v in cv_perf[desc_config].values()])),
+              "  |  Avg. Test ROC-AUC: {:2.2f}%".format(np.mean([v[2] * 100 for v in cv_perf[desc_config].values()])),
+              "  |  Avg. Test mAP: {:2.2f}%\n".format(np.mean([v[3] * 100 for v in cv_perf[desc_config].values()])))
