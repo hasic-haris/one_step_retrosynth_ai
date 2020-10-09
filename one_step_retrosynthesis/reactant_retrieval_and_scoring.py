@@ -15,10 +15,10 @@ from chemistry_methods.fingerprints import bulk_dice_similarity, bulk_tanimoto_s
 def fetch_n_similar_compounds(synthon_ind, synthon_mols, synthon_fps, search_pool, reaction_class, uq_class_ids,
                               use_class=False, use_size=False, cut_off=0.1, top_n=None, fetch_priority="similar",
                               similarity_metric="tanimoto", a=0.5, b=1.0):
-    """ Returns the Top-N similar compounds and their similarity scores for a given pattern compound. The pattern
-    compound should ideally be a SMARTS Mol object in order to enable superstructure searching. """
+    """ Returns the 'top_n' similar compounds and for a given pattern compound ''. The given pattern compound should be
+        a SMARTS generated RDKit Mol object in order to enable superstructure searching. """
 
-    # Extract the Rdkit Mol object and fingerprint of the pattern molecule.
+    # Extract the RDKit Mol object and fingerprint of the pattern molecule.
     pattern_mol = synthon_mols[synthon_ind]
     pattern_mol_fp = synthon_fps[synthon_ind]
 
