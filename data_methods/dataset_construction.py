@@ -555,5 +555,4 @@ def create_final_evaluation_dataset(args):
     #data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
 
     lol = pd.read_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
-    print(lol.values()[1])
     print(lol.reaction_class.unique())
