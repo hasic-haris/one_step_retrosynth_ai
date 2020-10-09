@@ -4,7 +4,6 @@ Created on:  February 21st, 2020
 Description: This file contains necessary functions for the generation and splitting of the raw original dataset.
 """
 
-import gc
 import os
 import random
 import numpy as np
