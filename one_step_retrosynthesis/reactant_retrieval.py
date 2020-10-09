@@ -26,7 +26,7 @@ def fetch_similar_compounds(synthon_mol, synthon_fp, reactant_search_pool, recor
                                                                                     [recorded_rxn_classes])]
 
     # Create subsets of the search pool representations for easier processing.
-    id_search_pool = reactant_search_pool["id"].values.tolist()
+    id_search_pool = reactant_search_pool["mol_id"].values.tolist()
     mol_search_pool = reactant_search_pool["mol_object"].values.tolist()
     fp_search_pool = reactant_search_pool["ecfp_1024"].values.tolist()
 
