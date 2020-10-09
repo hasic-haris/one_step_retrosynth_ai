@@ -67,3 +67,4 @@ def print_cross_validation_summary(cv_perf):
               "  |  Avg. Test mAP: {:2.2f}%\n".format(np.mean([v[3] * 100 for v in cv_perf[desc_config].values()])))
 
         print(cv_perf[desc_config])
+    print(cv_perf)
