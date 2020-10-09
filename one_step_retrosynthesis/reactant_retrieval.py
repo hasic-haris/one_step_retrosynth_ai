@@ -147,7 +147,7 @@ def benchmark_reactant_candidate_retrieval(args):
     unique_class_groups = {}
     for reaction_class in args.dataset_config.final_classes:
         unique_class_groups.update({reaction_class: [ind for ind, x in enumerate(reactant_search_pool.values.tolist())
-                                                     if reaction_class in x[5]]})
+                                                     if reaction_class in x[4]]})
 
     # Generate dictionaries for the evaluation of individual reactants and reactant combinations.
     mol_size_dict = {"num_atoms=[0,5]": [], "num_atoms=(5,10]": [], "num_atoms=(10,25]": [], "num_atoms=(25,50]": [],
