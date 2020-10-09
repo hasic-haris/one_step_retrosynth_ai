@@ -313,8 +313,10 @@ def test_model(args, specific_folds=None, verbose=True):
     model_config = generate_model_configuration(args)
 
     # Get the folds on which the model will be trained.
-    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_folds is None else specific_folds
+    train_on_folds = range(1, args.dataset_config.num_folds + 1) if specific_folds is None else specific_folds
     cross_validation_performance = dict()
+
+    print(train_on_folds)
 
     for fold_index in train_on_folds:
         for input_config in model_config["input_configs"]:
