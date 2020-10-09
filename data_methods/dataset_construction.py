@@ -522,7 +522,6 @@ def create_final_evaluation_dataset(args):
     # Iterate through the d
     for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
                              desc="Generating non-filtered version of the test dataset"):
-        break
         # Select only products from the reaction.
         _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="mol_no_maps")
         products_reaction_cores = get_reaction_core_atoms(row["reaction_smiles"])[1]
@@ -548,11 +547,8 @@ def create_final_evaluation_dataset(args):
                 evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
                                         row["reaction_class"], row["reactants_uq_mol_maps"]])
 
-    #data = pd.DataFrame(evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
-    #                                              "reaction_class", "reactants_uq_mol_maps"])
-    #print(data.head(100))
+    data = pd.DataFrame(evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
+                                                  "reaction_class", "reactants_uq_mol_maps"])
+    print(data.head(100))
 
-    #data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
-
-    lol = pd.read_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
-    print(lol.reaction_class.unique())
+    data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
