@@ -13,7 +13,7 @@ import numpy as np
 
 from model_methods.layers import fully_connected_layer, highway_layer
 from model_methods.print_helpers import print_epoch_summary, print_early_stopping_info
-from model_methods.print_helpers import print_training_summary, print_test_summary
+from model_methods.print_helpers import print_training_summary, print_test_summary, print_cross_validation_summary
 from data_methods.helpers import split_to_batches, read_datasets_from_fold
 from model_methods.scores import calculate_roc_values, calculate_prc_values
 from model_methods.visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
@@ -414,3 +414,5 @@ def test_model(args, specific_folds=None, verbose=True):
                     # Flush and close the summary writers.
                     summary_writer_test.flush()
                     summary_writer_test.close()
+
+    print_cross_validation_summary(cross_validation_performance)
