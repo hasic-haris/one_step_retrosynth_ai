@@ -4,6 +4,8 @@ Created on:  February 28th, 2020
 Description: This file contains necessary functions for monitoring the model training procedure.
 """
 
+import numpy as np
+
 
 def print_epoch_summary(curr_epoch, max_epoch, duration, train_loss, train_acc, val_loss, val_acc, val_roc_auc, val_map,
                         early_stopping_ctr):
@@ -52,7 +54,13 @@ def print_test_summary(test_time, test_loss, test_acc, test_roc_auc, test_map):
           "  |  Test mAP: {:2.2f}%\n".format(test_map * 100))
 
 
-def print_cross_validation_summary(cross_validation_test_scores):
+def print_cross_validation_summary(cv_results):
     """ Prints the model performance summary on the test set. """
 
-    print("Not yet implemented.")
+    for input_config in cv_results.keys():
+        print("\nModel trained on the '{}' input configuration.".format(input_config))
+        print("------------------------------------------------")
+        print("Average Test Loss: {:1.3f}".format(np.mean([v[0] for v in cv_results[input_config].values()])),
+              "  |  Average Test Accuracy: {:2.2f}%".format(np.mean([v[2] for v in cv_results[input_config].values()])),
+              "  |  Average Test ROC-AUC: {:2.2f}%".format(np.mean([v[3] for v in cv_results[input_config].values()])),
+              "  |  Average Test mAP: {:2.2f}%\n".format(np.mean([v[4] for v in cv_results[input_config].values()])))

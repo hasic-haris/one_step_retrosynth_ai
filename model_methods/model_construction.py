@@ -18,8 +18,6 @@ from data_methods.helpers import split_to_batches, read_datasets_from_fold
 from model_methods.scores import calculate_roc_values, calculate_prc_values
 from model_methods.visualizations import plot_confusion_matrix, plot_roc_curve, plot_prc_curve
 
-# TODO: Improve results monitoring and create an aggregate fold performance summary.
-
 
 def generate_log_folder(logs_folder_path, fold_index, log_folder_name):
     """ Generates the necessary folder for storing checkpoint information of the generated model configuration. """
@@ -153,7 +151,7 @@ def define_optimization_operations(tf_model_graph, logits, labels, model_config)
         return loss, accuracy, optimizer
 
 
-def train_model(args, specific_fold=None, verbose=True):
+def train_model(args, specific_folds=None, verbose=True):
     """ Trains the multi-class classification model based on the specified hyper-parameters. The default setting is to
         train the model on all folds. Use the 'specific_fold' parameter to train the model only on one specific fold."""
 
@@ -161,7 +159,7 @@ def train_model(args, specific_fold=None, verbose=True):
     model_config = generate_model_configuration(args)
 
     # Get the folds on which the model will be trained.
-    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_fold is None else [specific_fold]
+    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_folds is None else specific_folds
 
     for fold_index in train_on_folds:
         for input_config in model_config["input_configs"]:
@@ -308,14 +306,15 @@ def train_model(args, specific_fold=None, verbose=True):
                                    val_loss_min, val_acc_max, val_auc_max, val_map_max)
 
 
-def test_model(args, specific_fold=None, verbose=True):
+def test_model(args, specific_folds=None, verbose=True):
     """ Tests the multi-class classification model based on the specified hyper-parameters. """
 
     # Generate the model configuration from the hyper-parameters specified in the config.json file.
     model_config = generate_model_configuration(args)
 
     # Get the folds on which the model will be trained.
-    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_fold is None else [specific_fold]
+    train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_folds is None else specific_folds
+    cross_validation_performance = {}
 
     for fold_index in train_on_folds:
         for input_config in model_config["input_configs"]:
@@ -400,6 +399,10 @@ def test_model(args, specific_fold=None, verbose=True):
                     prc_summary, test_map = plot_prc_curve(y_test, test_output, model_config["reaction_classes"],
                                                            tensor_name='auc/precision-recall')
                     summary_writer_test.add_summary(prc_summary)
+
+                    cross_validation_performance[input_config] = {}
+                    cross_validation_performance[input_config][fold_index] = [test_loss, test_accuracy,
+                                                                              test_auc["micro"], test_map["micro"]]
 
                     # If indicated, print the test summary.
                     if verbose:
