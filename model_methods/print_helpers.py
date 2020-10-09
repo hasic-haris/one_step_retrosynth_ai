@@ -65,6 +65,3 @@ def print_cross_validation_summary(cv_perf):
               "  |  Avg. Test Accuracy: {:2.2f}%".format(np.mean([v[1] * 100 for v in cv_perf[desc_config].values()])),
               "  |  Avg. Test ROC-AUC: {:2.2f}%".format(np.mean([v[2] * 100 for v in cv_perf[desc_config].values()])),
               "  |  Avg. Test mAP: {:2.2f}%\n".format(np.mean([v[3] * 100 for v in cv_perf[desc_config].values()])))
-
-        print(cv_perf[desc_config])
-    print(cv_perf)
