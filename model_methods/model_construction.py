@@ -322,7 +322,7 @@ def test_model(args, specific_folds=None, specific_input_configs=None, verbose=T
 
     for fold_index in test_on_folds:
         for input_config in test_on_input_configs:
-            # Generate the necessary log folders to store models, checkpoints and summaries.
+            # Fetch the necessary log folders where models, checkpoints and summaries are stored.
             log_folder = generate_log_folder(model_config["logs_folder"], fold_index, input_config["folder_name"])
 
             # Read the test set, according to which test dataset is specified.
@@ -432,25 +432,12 @@ def apply_model(args, input_data=None):
     # Generate the model configuration from the hyper-parameters specified in the config.json file.
     model_config = generate_model_configuration(args)
 
-    # Generate the necessary log folders to store models, checkpoints and summaries.
+    # Fetch the necessary log folders where models, checkpoints and summaries are stored.
     log_folder = generate_log_folder(model_config["logs_folder"], args.evaluation_config.best_fold,
                                      args.evaluation_config.best_input_config["folder_name"])
 
     input_data = pd.read_pickle(args.evaluation_config.final_data_model).values if input_data is None \
         else input_data
-    print(type(input_data))
-    print(input_data.shape)
-    print(input_data)
-    print(input_data[0])
-
-    print("\n")
-
-    input_data = pd.read_pickle("/data/hhasic/one_step_retrosynthesis_ai/output/fold_5/hsfp_2_2_1024/x_test.pkl")
-
-    print(type(input_data))
-    print(input_data.shape)
-    print(input_data)
-    print(input_data[0])
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
@@ -486,5 +473,7 @@ def apply_model(args, input_data=None):
 
             # Calculate the accuracy and loss values for the test dataset.
             model_output = sess.run([output_layer], feed_dict={inputs: input_data, })
+
+    print(model_output)
 
     return model_output
