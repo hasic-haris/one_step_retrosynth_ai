@@ -438,6 +438,9 @@ def apply_model(args, input_data=None):
 
     input_data = pd.read_pickle(args.evaluation_config.final_data_model).to_numpy() if input_data is None \
         else input_data
+    print(type(input_data))
+    print(input_data)
+    print(input_data[0])
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
