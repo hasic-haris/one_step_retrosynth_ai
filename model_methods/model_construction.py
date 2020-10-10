@@ -443,6 +443,12 @@ def apply_model(args, input_data=None):
     print(input_data.shape)
     print(input_data)
 
+    input_data = np.reshape(input_data, (len(input_data), 1024))
+
+    print(type(input_data))
+    print(input_data.shape)
+    print(input_data)
+
     input_data = pd.read_pickle("/data/hhasic/one_step_retrosynthesis_ai/output/fold_5/hsfp_2_2_1024/x_test.pkl").values
 
     print(type(input_data))
