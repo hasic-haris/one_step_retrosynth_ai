@@ -521,7 +521,7 @@ def create_final_evaluation_dataset(args):
 
     # Iterate through the test dataset and generate the necessary data.
     for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
-                             desc="Generating non-filtered version of the test dataset"):
+                             desc="Generating the non-filtered version of the test dataset"):
         # Select only the products from the reaction SMILES.
         _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="mol_no_maps")
 
