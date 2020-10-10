@@ -150,7 +150,7 @@ def define_optimization_operations(tf_model_graph, logits, labels, model_config)
         return loss, accuracy, optimizer
 
 
-def train_model(args, specific_folds=None, verbose=True):
+def train_model(args, specific_folds=None, specific_input_configs=None, verbose=True):
     """ Trains the multi-class classification model based on the specified hyper-parameters. The default setting is to
         train the model on all folds. Use the 'specific_fold' parameter to train the model only on one specific fold."""
 
@@ -159,9 +159,10 @@ def train_model(args, specific_folds=None, verbose=True):
 
     # Get the folds on which the model will be trained.
     train_on_folds = range(1, args.dataset_config.num_folds+1) if specific_folds is None else specific_folds
+    train_on_input_configs = model_config["input_configs"] if specific_input_configs is None else specific_input_configs
 
     for fold_index in train_on_folds:
-        for input_config in model_config["input_configs"]:
+        for input_config in train_on_input_configs:
             # Generate the necessary log folders to store models, checkpoints and summaries.
             log_folder = generate_log_folder(model_config["logs_folder"], fold_index, input_config["folder_name"])
 
@@ -305,27 +306,28 @@ def train_model(args, specific_folds=None, verbose=True):
                                    val_loss_min, val_acc_max, val_auc_max, val_map_max)
 
 
-def test_model(args, specific_folds=None, verbose=True):
-    """ Tests the multi-class classification model based on the specified hyper-parameters. """
+def test_model(args, specific_folds=None, specific_input_configs=None, verbose=True):
+    """ Tests the multi-class classification model based on the specified hyper-parameters. If the 'custom_data'
+        parameter is not specified to contain the test set data and labels as a tuple(x_test, y_test), then the model
+        will be tested on the test set that is already in the fold folder. """
 
     # Generate the model configuration from the hyper-parameters specified in the config.json file.
     model_config = generate_model_configuration(args)
 
     # Get the folds on which the model will be trained.
-    train_on_folds = range(1, args.dataset_config.num_folds + 1) if specific_folds is None else specific_folds
-
+    test_on_folds = range(1, args.dataset_config.num_folds + 1) if specific_folds is None else specific_folds
+    test_on_input_configs = model_config["input_configs"] if specific_input_configs is None else specific_input_configs
     cross_validation_performance = dict()
 
-    for fold_index in train_on_folds:
-        for input_config in model_config["input_configs"]:
+    for fold_index in test_on_folds:
+        for input_config in test_on_input_configs:
             # Generate the necessary log folders to store models, checkpoints and summaries.
             log_folder = generate_log_folder(model_config["logs_folder"], fold_index, input_config["folder_name"])
 
-            # Read the test set.
+            # Read the test set, according to which test dataset is specified.
             _, _, _, _, x_test, y_test = read_datasets_from_fold(dataset_path=model_config["dataset_path"],
                                                                  fold_index=fold_index,
-                                                                 input_config=input_config["folder_name"],
-                                                                 use_oversampling=False)
+                                                                 input_config=input_config["folder_name"])
 
             # Create the instance of the TensorFlow graph.
             tf_model_graph = tf.Graph()
@@ -419,3 +421,53 @@ def test_model(args, specific_folds=None, verbose=True):
                     summary_writer_test.close()
 
     print_cross_validation_summary(cross_validation_performance)
+
+
+def apply_model(input_data, args):
+    """ Tests the multi-class classification model based on the specified hyper-parameters. If the 'custom_data'
+        parameter is not specified to contain the test set data and labels as a tuple(x_test, y_test), then the model
+        will be tested on the test set that is already in the fold folder. """
+
+    # Generate the model configuration from the hyper-parameters specified in the config.json file.
+    model_config = generate_model_configuration(args)
+
+    # Generate the necessary log folders to store models, checkpoints and summaries.
+    log_folder = generate_log_folder(model_config["logs_folder"], args.evaluation_config.best_fold,
+                                     args.evaluation_config.best_input_config["folder_name"])
+
+    # Create the instance of the TensorFlow graph.
+    tf_model_graph = tf.Graph()
+
+    # Initialize the TensorFlow graph.
+    with tf_model_graph.as_default():
+        # Set random seed for reproducibility purposes.
+        tf.set_random_seed(model_config["random_seed"])
+
+        # Initialize the placeholders for the input and target values.
+        inputs = tf.placeholder(tf.float32, shape=[None, model_config["input_size"]], name="input")
+
+        # Create the TensorFlow model.
+        output_layer = create_model(tf_model_graph,
+                                    input_tensor=inputs,
+                                    model_config=model_config)
+
+        # Create the session for the testing process.
+        with tf.Session(graph=tf_model_graph) as sess:
+            # Create a saver instance to restore from the checkpoint.
+            saver = tf.train.Saver(max_to_keep=1)
+
+            # Initialize the global variables.
+            sess.run(tf.global_variables_initializer())
+
+            # Restore the model from the latest saved checkpoint.
+            latest_checkpoint_path = tf.train.latest_checkpoint(log_folder + "checkpoints/")
+
+            if latest_checkpoint_path:
+                saver.restore(sess, latest_checkpoint_path)
+            else:
+                raise Exception("There are no proper checkpoints in order to restore the model.")
+
+            # Calculate the accuracy and loss values for the test dataset.
+            model_output = sess.run([output_layer], feed_dict={inputs: input_data, })
+
+    return model_output

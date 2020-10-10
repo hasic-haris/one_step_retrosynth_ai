@@ -511,44 +511,49 @@ def create_model_training_datasets(args):
 
 
 def create_final_evaluation_dataset(args):
-
-    fold_ind = 5
-    fp_config = {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"}
+    """ Creates a version of the test dataset where the non-reactive substructures are not filtered out and the
+        compounds are treated like real unknown input compounds without mapping or known reaction class. """
 
     # Read the test dataset from the specified fold.
-    test_dataset = pd.read_pickle(args.dataset_config.output_folder + "fold_{}/test_data.pkl".format(fold_ind))
-    evaluation_data = []
+    test_dataset = pd.read_pickle(args.dataset_config.output_folder +
+                                  "fold_{}/test_data.pkl".format(args.evaluation_config.best_fold))
+    final_evaluation_data = []
 
-    # Iterate through the d
+    # Iterate through the test dataset and generate the necessary data.
     for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
                              desc="Generating non-filtered version of the test dataset"):
-        # Select only products from the reaction.
+        # Select only the products from the reaction SMILES.
         _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="mol_no_maps")
+
+        # Get reaction cores of the reaction for better evaluation.
         products_reaction_cores = get_reaction_core_atoms(row["reaction_smiles"])[1]
 
+        # Iterate through all of the product molecules and generate descriptors for each bond.
         for p_ind, product in enumerate(products):
             for bond in product.GetBonds():
-
-                if fp_config["type"] == "ecfp":
-                    bond_fp = construct_ecfp(product, radius=fp_config["radius"], bits=fp_config["bits"],
+                if args.evaluation_config.best_input_config["type"] == "ecfp":
+                    bond_fp = construct_ecfp(product, radius=args.evaluation_config.best_input_config["radius"],
+                                             bits=args.evaluation_config.best_input_config["bits"],
                                              from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
                                              output_type="np_array", as_type="np_float")
                 else:
-                    bond_fp = construct_hsfp(product, radius=fp_config["radius"], bits=fp_config["bits"],
+                    bond_fp = construct_hsfp(product, radius=args.evaluation_config.best_input_config["radius"],
+                                             bits=args.evaluation_config.best_input_config["bits"],
                                              from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
-                                             neighbourhood_ext=fp_config["ext"])
+                                             neighbourhood_ext=args.evaluation_config.best_input_config["ext"])
 
-                if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
-                        bond.GetEndAtomIdx() in products_reaction_cores[p_ind]:
-                    in_core = True
-                else:
-                    in_core = False
+                # If the current bond is part of the core, add that information to the new dataset.
+                in_core = True if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
+                                  bond.GetEndAtomIdx() in products_reaction_cores[p_ind] else in_core = False
 
-                evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
-                                        row["reaction_class"], row["reactants_uq_mol_maps"]])
+                final_evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
+                                              row["reaction_class"], row["reactants_uq_mol_maps"]])
 
-    data = pd.DataFrame(evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
-                                                  "reaction_class", "reactants_uq_mol_maps"])
-    print(data.head(100))
+    # Save the final evaluation dataset as a .pkl file.
+    final_evaluation_data = pd.DataFrame(final_evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core",
+                                                                         "reaction_smiles", "reaction_class",
+                                                                         "reactants_uq_mol_maps"])
 
-    data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
+    final_evaluation_data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
+
+    return final_evaluation_data["bond_fp"].values()

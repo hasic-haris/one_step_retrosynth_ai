@@ -54,7 +54,7 @@
 
   "evaluation_config":
   {
-    "logs_folder": "/home/hhasic/projects/one_step_retrosynth_ai/model_methods/configurations_logs/",
-    "fixed_model": 0
+    "best_fold": 5,
+    "best_input_config":  {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"}
   }
 }

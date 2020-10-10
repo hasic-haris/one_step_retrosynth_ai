@@ -7,13 +7,14 @@ Description: This script evaluates the full single-step retrosynthesis pipeline.
 from config import FullConfig
 from one_step_retrosynthesis.reactant_retrieval import benchmark_reactant_candidate_retrieval
 from data_methods.dataset_construction import create_final_evaluation_dataset
+from model_methods.model_construction import apply_model
 
 
 full_config = FullConfig.load()
 
 # TODO:
 # 1. Generate a pool of the Top-10 most frequent occurring molecules per each class.
-# 2. Generate a good dataset for the final evaluation.
+# 2. Generate a good dataset for the final evaluation. DONE
 # 3. Apply the trained models on that dataset.
 # 4. Generate a good visual summary representation of the actual results.
 
@@ -21,11 +22,15 @@ full_config = FullConfig.load()
 # benchmark_reactant_candidate_retrieval(full_config)
 
 print("\nStep 1/3: Generate the dataset that will be used for the final evaluation of the approach.\n")
-create_final_evaluation_dataset(full_config)
+model_input_data = create_final_evaluation_dataset(full_config)
 
-#print("\nStep 2/3: Use the constructed model to classify the .\n")
+print("\nStep 2/3: Apply the constructed model to classify the non-filtered data from the test molecules.\n")
+model_predictions = apply_model(model_input_data, full_config)
 
-#print("\nStep 3/3: Generate the final dataset that will be used in the final evaluation of the approach.\n")
+
+print(model_predictions.head(10))
+
+#print("\nStep 3/3: Check the reactant retrieval and scoring performance on these molecules.\n")
 
 # generate_pipeline_test_dataset(fold_ind=1, **input_params)
 # qualitative_model_assessment(**input_params)

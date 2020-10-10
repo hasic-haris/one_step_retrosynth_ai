@@ -49,7 +49,7 @@ class ModelConfig(NamedTuple):
 class EvaluationConfig(NamedTuple):
 
     best_fold: int
-    best_model: int
+    best_input_config: dict
 
 
 class FullConfig(NamedTuple):
@@ -75,4 +75,5 @@ class FullConfig(NamedTuple):
 
             return cls(dataset_config=DatasetsConfig(**settings["dataset_config"]),
                        descriptor_config=DescriptorConfig(**settings["descriptor_config"]),
-                       model_config=ModelConfig(**settings["model_config"]))
+                       model_config=ModelConfig(**settings["model_config"]),
+                       evaluation_config=EvaluationConfig(**settings["evaluation_config"]))
