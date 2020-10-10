@@ -437,7 +437,7 @@ def apply_model(args, input_data=None):
                                      args.evaluation_config.best_input_config["folder_name"])
 
     if input_data is None:
-        input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"].to_numpy()
+        input_data = np.array(pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"].to_numpy())
 
     print(type(input_data))
     print(input_data.shape)
