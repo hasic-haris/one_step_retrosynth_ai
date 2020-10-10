@@ -57,6 +57,7 @@ class FullConfig(NamedTuple):
     dataset_config: DatasetsConfig
     descriptor_config: DescriptorConfig
     model_config: ModelConfig
+    evaluation_config: EvaluationConfig
 
     @classmethod
     def load(cls, file_path: Optional[str] = None) -> "FullConfig":
