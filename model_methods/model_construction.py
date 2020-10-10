@@ -439,7 +439,7 @@ def apply_model(args, input_data=None):
     if input_data is None:
         input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)[["bond_fp"]].values
         for ind, val in enumerate(input_data):
-            input_data[ind] = val.eval()
+            input_data[ind] = eval(val)
 
     print(type(input_data))
     print(input_data.shape)
