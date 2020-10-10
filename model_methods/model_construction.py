@@ -440,7 +440,7 @@ def apply_model(args, input_data=None):
         input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)[["bond_fp"]].to_numpy()
 
         for fp_ind in range(len(input_data)):
-            input_data[fp_ind] = np.array(input_data[fp_ind])
+            input_data[fp_ind] = np.array(input_data[fp_ind][0])
 
     print(type(input_data))
     print(input_data.shape)
