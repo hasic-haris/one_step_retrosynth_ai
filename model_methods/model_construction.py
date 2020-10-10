@@ -439,8 +439,20 @@ def apply_model(args, input_data=None):
     input_data = pd.read_pickle(args.evaluation_config.final_data_model).to_numpy() if input_data is None \
         else input_data
     print(type(input_data))
+    print(input_data.shape)
     print(input_data)
     print(input_data[0])
+
+    print("\n")
+
+    input_data = pd.read_pickle("/data/hhasic/one_step_retrosynthesis_ai/output/fold_5/hsfp_2_2_1024/x_test.pkl")
+
+    print(type(input_data))
+    print(input_data.shape)
+    print(input_data)
+    print(input_data[0])
+
+    exit(0)
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
