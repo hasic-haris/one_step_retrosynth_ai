@@ -543,8 +543,11 @@ def create_final_evaluation_dataset(args):
                                              neighbourhood_ext=args.evaluation_config.best_input_config["ext"])
 
                 # If the current bond is part of the core, add that information to the new dataset.
-                in_core = True if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
-                                  bond.GetEndAtomIdx() in products_reaction_cores[p_ind] else in_core = False
+                if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
+                        bond.GetEndAtomIdx() in products_reaction_cores[p_ind]:
+                    in_core = True
+                else:
+                    in_core = False
 
                 final_evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
                                               row["reaction_class"], row["reactants_uq_mol_maps"]])
