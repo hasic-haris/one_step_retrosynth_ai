@@ -558,5 +558,5 @@ def create_final_evaluation_dataset(args):
                                                                          "reactants_uq_mol_maps"])
 
     final_evaluation_data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
-
-    return final_evaluation_data["bond_fp"].values()
+    final_evaluation_data[["bond_fp"]].to_pickle(args.dataset_config.output_folder +
+                                                 "final_evaluation_dataset_model.pkl")

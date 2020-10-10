@@ -50,6 +50,8 @@ class EvaluationConfig(NamedTuple):
 
     best_fold: int
     best_input_config: dict
+    final_data_full: str
+    final_data_model: str
 
 
 class FullConfig(NamedTuple):

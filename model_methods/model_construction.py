@@ -9,6 +9,7 @@ import os
 import time
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 
 from model_methods.layers import fully_connected_layer, highway_layer
 from model_methods.print_helpers import print_epoch_summary, print_early_stopping_info
@@ -423,7 +424,7 @@ def test_model(args, specific_folds=None, specific_input_configs=None, verbose=T
     print_cross_validation_summary(cross_validation_performance)
 
 
-def apply_model(input_data, args):
+def apply_model(args, input_data=None):
     """ Tests the multi-class classification model based on the specified hyper-parameters. If the 'custom_data'
         parameter is not specified to contain the test set data and labels as a tuple(x_test, y_test), then the model
         will be tested on the test set that is already in the fold folder. """
@@ -434,6 +435,8 @@ def apply_model(input_data, args):
     # Generate the necessary log folders to store models, checkpoints and summaries.
     log_folder = generate_log_folder(model_config["logs_folder"], args.evaluation_config.best_fold,
                                      args.evaluation_config.best_input_config["folder_name"])
+
+    input_data = pd.read_pickle(args.evaluation_config.final_data_model) if input_data is None else input_data
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
