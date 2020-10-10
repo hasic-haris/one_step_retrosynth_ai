@@ -440,7 +440,7 @@ def apply_model(args, input_data=None):
         input_data = np.array(pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"]
                               .values.tolist())
 
-    np.set_printoptions(np.inf)
+    np.set_printoptions(threshold=5000)
     print(input_data[0])
 
     # Create the instance of the TensorFlow graph.
