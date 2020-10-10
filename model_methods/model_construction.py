@@ -437,11 +437,11 @@ def apply_model(args, input_data=None):
                                      args.evaluation_config.best_input_config["folder_name"])
 
     if input_data is None:
-        input_data = np.array(pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"].values.tolist())
+        input_data = np.array(pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"]
+                              .values.tolist())
 
-    print(type(input_data))
-    print(input_data.shape)
-    print(input_data)
+    np.set_printoptions(np.inf)
+    print(input_data[0])
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
@@ -478,6 +478,6 @@ def apply_model(args, input_data=None):
             # Calculate the accuracy and loss values for the test dataset.
             model_output = sess.run([output_layer], feed_dict={inputs: input_data, })
 
-    print(model_output)
+    print(np.round(model_output, 2))
 
     return model_output
