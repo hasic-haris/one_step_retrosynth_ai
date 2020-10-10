@@ -436,7 +436,7 @@ def apply_model(args, input_data=None):
     log_folder = generate_log_folder(model_config["logs_folder"], args.evaluation_config.best_fold,
                                      args.evaluation_config.best_input_config["folder_name"])
 
-    input_data = pd.read_pickle(args.evaluation_config.final_data_model).to_numpy() if input_data is None \
+    input_data = pd.read_pickle(args.evaluation_config.final_data_model).values if input_data is None \
         else input_data
     print(type(input_data))
     print(input_data.shape)
@@ -451,8 +451,6 @@ def apply_model(args, input_data=None):
     print(input_data.shape)
     print(input_data)
     print(input_data[0])
-
-    exit(0)
 
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
