@@ -436,14 +436,10 @@ def apply_model(args, input_data=None):
     log_folder = generate_log_folder(model_config["logs_folder"], args.evaluation_config.best_fold,
                                      args.evaluation_config.best_input_config["folder_name"])
 
-    input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"].values \
-        if input_data is None else input_data
-
-    print(type(input_data))
-    print(input_data.shape)
-    print(input_data)
-
-    input_data = np.reshape(input_data, (len(input_data), 1024))
+    if input_data is None:
+        input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)[["bond_fp"]].values
+        for ind, val in enumerate(input_data):
+            input_data[ind] = val.eval()
 
     print(type(input_data))
     print(input_data.shape)
