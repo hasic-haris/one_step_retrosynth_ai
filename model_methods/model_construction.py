@@ -439,6 +439,16 @@ def apply_model(args, input_data=None):
     input_data = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"].values \
         if input_data is None else input_data
 
+    print(input_data.shape)
+    print(input_data)
+
+    input_data = pd.read_pickle("/data/hhasic/one_step_retrosynthesis_ai/output/fold_5/hsfp_2_2_1024/x_test.pkl").values
+
+    print(input_data.shape)
+    print(input_data)
+
+    exit(0)
+
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
 
