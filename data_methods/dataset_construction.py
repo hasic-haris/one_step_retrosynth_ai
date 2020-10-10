@@ -517,7 +517,7 @@ def create_final_evaluation_dataset(args):
     # Read the test dataset from the specified fold.
     test_dataset = pd.read_pickle(args.dataset_config.output_folder +
                                   "fold_{}/test_data.pkl".format(args.evaluation_config.best_fold))
-    final_evaluation_data = []
+    final_data_tuples = []
 
     # Iterate through the test dataset and generate the necessary data.
     for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
@@ -549,12 +549,10 @@ def create_final_evaluation_dataset(args):
                 else:
                     in_core = False
 
-                final_evaluation_data.append([row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
-                                              row["reaction_class"], row["reactants_uq_mol_maps"]])
+                final_data_tuples.append((row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
+                                          row["reaction_class"], row["reactants_uq_mol_maps"]))
 
     # Save the final evaluation dataset as a .pkl file.
-    final_evaluation_data = pd.DataFrame(final_evaluation_data, columns=["patent_id", "bond_id", "bond_fp", "is_core",
-                                                                         "reaction_smiles", "reaction_class",
-                                                                         "reactants_uq_mol_maps"])
-
-    final_evaluation_data.to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
+    pd.DataFrame(final_data_tuples, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
+                                             "reaction_class", "reactants_uq_mol_maps"])\
+        .to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
