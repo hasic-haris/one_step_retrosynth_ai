@@ -223,6 +223,8 @@ def benchmark_reactant_candidate_retrieval(args):
 
 def complete_and_score_suggestions(args):
 
-    apply_model(args)
+    output_labels = apply_model(args)
+
+    print(type(output_labels))
 
     return None
