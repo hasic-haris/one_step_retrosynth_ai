@@ -227,6 +227,9 @@ def complete_and_score_suggestions(args):
     # Use the model to predict the labels for each of the
     test_set_labels = apply_model(args)
 
+    print(len(test_set_labels))
+    print(test_set_labels)
+
     final_test_set = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)
     final_test_set["predicted_class"] = test_set_labels
 
