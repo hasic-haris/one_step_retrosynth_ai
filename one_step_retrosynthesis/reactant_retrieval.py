@@ -222,9 +222,14 @@ def benchmark_reactant_candidate_retrieval(args):
 
 
 def complete_and_score_suggestions(args):
+    """ TBD. """
 
-    output_labels = apply_model(args)
+    # Use the model to predict the labels for each of the
+    test_set_labels = apply_model(args)
 
-    print(type(output_labels))
+    final_test_set = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)
+    final_test_set["predicted_class"] = test_set_labels
 
-    return None
+    print(final_test_set.columns)
+
+    print(final_test_set.head(5))
