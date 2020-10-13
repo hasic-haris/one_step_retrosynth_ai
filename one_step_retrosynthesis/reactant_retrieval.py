@@ -22,9 +22,11 @@ def fetch_similar_compounds(synthon_mol, synthon_fp, reactant_search_pool, recor
         if it is not, the method will return structurally similar compounds anyway. """
 
     # Depending on the available reaction class information, narrow down the search pool.
-    if use_class:
+    if use_class and type(recorded_rxn_classes) == int:
         reactant_search_pool = reactant_search_pool[reactant_search_pool.index.isin(unique_class_groups
                                                                                     [recorded_rxn_classes])]
+    elif use_class and type(recorded_rxn_classes) == list:
+        reactant_search_pool = reactant_search_pool[reactant_search_pool.index.isin(recorded_rxn_classes)]
 
     # Create subsets of the search pool representations for easier processing.
     id_search_pool = reactant_search_pool["mol_id"].values.tolist()
@@ -142,7 +144,6 @@ def benchmark_reactant_candidate_retrieval(args):
     """ Tests the accuracy of the reactant retrieval approach based on fingerprint similarity on the full dataset. """
 
     # Read the needed datasets.
-    # final_training_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
     final_training_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
     reactant_search_pool = pd.read_pickle(args.dataset_config.output_folder + "unique_reactants_pool.pkl")
 
@@ -230,4 +231,56 @@ def complete_and_score_suggestions(args):
     final_test_set = pd.read_pickle(args.evaluation_config.final_evaluation_dataset)
     final_test_set["predicted_class"] = list(test_set_labels)
 
-    print(final_test_set.columns)
+    reactant_search_pool = pd.read_pickle(args.dataset_config.output_folder + "unique_reactants_pool.pkl")
+
+    combo_position = []
+
+    unique_class_groups = {}
+    for reaction_class in args.dataset_config.final_classes:
+        unique_class_groups.update({reaction_class: [ind for ind, x in enumerate(reactant_search_pool.values.tolist())
+                                                     if reaction_class in x[4]]})
+
+    fetch_per_position = {0: 1, 1: 50, 2: 50}
+
+    for row_ind, row in tqdm(final_test_set.iterrows(), total=len(final_test_set.index),
+                             desc="Retrieving and scoring reactant candidate combinations"):
+        np.nonzero(row["reaction_class"])
+
+        # Sort the synthons per atom count and fetch all of the needed data.
+        synthon_mols, synthon_fps, synthon_maps = zip(*sorted(zip(row["non_reactive_smals"],
+                                                                  row["non_reactive_fps"],
+                                                                  row["reactants_uq_mol_maps"]),
+                                                              key=lambda k: len(k[0].GetAtoms()), reverse=True))
+        suggested_combination = []
+
+        # Go through the list of synthons from the product molecule and retrieve the reactant candidates.
+        for synthon_ind, synthon_mol in enumerate(synthon_mols):
+            reactants_candidates = fetch_similar_compounds(synthon_mol=synthon_mol,
+                                                           synthon_fp=synthon_fps[synthon_ind],
+                                                           reactant_search_pool=reactant_search_pool,
+                                                           recorded_rxn_classes=row["reaction_class"],
+                                                           unique_class_groups=unique_class_groups,
+                                                           use_class=True,
+                                                           cut_off=0.2,
+                                                           top_n=50,
+                                                           fetch_priority="superstructures")
+
+            suggested_combination.append(reactants_candidates[:fetch_per_position[synthon_ind]])
+
+        # Find out the actual combination position.
+        combination_positions = [c[0] for c in generate_candidate_combinations(suggested_combination, top_n=50)]
+        combination_position = -1
+
+        for c_ind, combination in enumerate(combination_positions):
+            if set(combination) == set(synthon_maps):
+                combination_position = c_ind
+                break
+
+        combo_position.append(combination_position)
+
+    final_test_set["final_combo"] = combo_position
+
+    print("Found: ")
+    print(len(final_test_set[final_test_set["is_core"] & (final_test_set["final_combo"] != -1)]))
+    print("Not Found: ")
+    print(len(final_test_set[final_test_set["is_core"] & (final_test_set["final_combo"] == -1)]))

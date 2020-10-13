@@ -24,8 +24,8 @@ full_config = FullConfig.load()
 # print("\nOptional Step: Run a benchmark for the reactant retrieval and scoring process.\n")
 # benchmark_reactant_candidate_retrieval(full_config)
 
-print("\nStep 1/4: Generate the dataset that will be used for the final evaluation of the approach.\n")
-create_final_evaluation_dataset(full_config)
+#print("\nStep 1/4: Generate the dataset that will be used for the final evaluation of the approach.\n")
+#create_final_evaluation_dataset(full_config)
 
 #print("\nStep 2/4: Apply the constructed model to classify the non-filtered data from the test molecules.\n")
 #apply_model(full_config)
