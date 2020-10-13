@@ -440,9 +440,6 @@ def apply_model(args, input_data=None):
         input_data = np.array(pd.read_pickle(args.evaluation_config.final_evaluation_dataset)["bond_fp"]
                               .values.tolist())
 
-    np.set_printoptions(threshold=5000)
-    print(input_data[0])
-
     # Create the instance of the TensorFlow graph.
     tf_model_graph = tf.Graph()
 
@@ -477,7 +474,5 @@ def apply_model(args, input_data=None):
 
             # Calculate the accuracy and loss values for the test dataset.
             model_output = sess.run([output_layer], feed_dict={inputs: input_data, })
-
-    print(np.round(model_output, 2))
 
     return model_output

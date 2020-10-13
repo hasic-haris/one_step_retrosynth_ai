@@ -9,14 +9,15 @@ from rdkit.Chem import AllChem
 
 from chemistry_methods.fingerprints import construct_hsfp
 from chemistry_methods.reaction_analysis import extract_info_from_molecule
-from model_methods.tf_model_construction import test_model
-from model_methods.tf_main import generate_model_hp_config
 from one_step_retrosynthesis.reactant_retrieval_and_scoring import get_combinations_for_single_mol
 
 
+def analyze_disconnection_suggestion(mol, **kwargs):
+    return None
+
 
 # Done: 33%
-def analyze_novel_molecule(mol, **kwargs):
+def bulk_analyze_disconnection_suggestions(mol, **kwargs):
     """ Returns potential disconnections in the target molecule including the chemical reaction class, real reactant
     molecules and the probability of the reaction. """
 

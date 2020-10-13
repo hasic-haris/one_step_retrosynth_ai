@@ -11,6 +11,7 @@ from tqdm import tqdm
 from collections import Counter
 
 from chemistry_methods.fingerprints import bulk_dice_similarity, bulk_tanimoto_similarity, bulk_tversky_similarity
+from model_methods.model_construction import apply_model
 
 
 def fetch_similar_compounds(synthon_mol, synthon_fp, reactant_search_pool, recorded_rxn_classes, unique_class_groups,
@@ -218,3 +219,10 @@ def benchmark_reactant_candidate_retrieval(args):
 
     # Analyze the retrieved reactant combinations based on the reaction class.
     analyze_retrieved_elements(mol_class_dict, element_type="class")
+
+
+def complete_and_score_suggestions(args):
+
+    apply_model(args)
+
+    return None
