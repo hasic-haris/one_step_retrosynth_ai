@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from chemistry_methods.reactions import parse_reaction_roles
 from chemistry_methods.fingerprints import construct_ecfp, construct_hsfp
-from chemistry_methods.reaction_analysis import extract_info_from_reaction
+from chemistry_methods.reaction_analysis import extract_info_from_reaction, extract_info_from_molecule
 from chemistry_methods.reaction_cores import get_reaction_core_atoms, get_separated_cores
 from chemistry_methods.molecules import get_atom_environment, get_bond_environment
 from data_methods.helpers import get_n_most_frequent_rows, encode_one_hot
@@ -549,10 +549,24 @@ def create_final_evaluation_dataset(args):
                 else:
                     in_core = False
 
-                final_data_tuples.append((row["patent_id"], bond.GetIdx(), bond_fp, in_core, row["reaction_smiles"],
-                                          row["reaction_class"], row["reactants_uq_mol_maps"]))
+                # Generate the necessary additional information.
+                reactive_part, non_reactive_part = extract_info_from_molecule(product, [bond.GetBeginAtomIdx(),
+                                                                                        bond.GetEndAtomIdx()])
+                reactive_fps = [construct_ecfp(rp_mol, radius=args.descriptor_config.similarity_search["radius"],
+                                               bits=args.descriptor_config.similarity_search["bits"])
+                                for rp_mol in reactive_part[2]]
+                non_reactive_fps = [construct_ecfp(nrp_mol, radius=args.descriptor_config.similarity_search["radius"],
+                                                   bits=args.descriptor_config.similarity_search["bits"])
+                                    for nrp_mol in non_reactive_part[2]]
+
+                final_data_tuples.append((row["patent_id"], bond.GetIdx(), bond_fp, in_core, reactive_part[0],
+                                          reactive_part[2], reactive_part[3], reactive_fps, non_reactive_part[0],
+                                          non_reactive_part[2], non_reactive_part[2], non_reactive_fps,
+                                          row["reaction_smiles"], row["reaction_class"], row["reactants_uq_mol_maps"]))
 
     # Save the final evaluation dataset as a .pkl file.
-    pd.DataFrame(final_data_tuples, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reaction_smiles",
-                                             "reaction_class", "reactants_uq_mol_maps"])\
+    pd.DataFrame(final_data_tuples, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reactive_smiles",
+                                             "reactive_smols", "reactive_smals", "reactive_fps", "non_reactive_smiles",
+                                             "non_reactive_smols", "non_reactive_smals", "non_reactive_fps",
+                                             "reaction_smiles", "reaction_class", "reactants_uq_mol_maps"])\
         .to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")

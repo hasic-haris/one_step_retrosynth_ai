@@ -231,5 +231,3 @@ def complete_and_score_suggestions(args):
     final_test_set["predicted_class"] = list(test_set_labels)
 
     print(final_test_set.columns)
-
-    print(final_test_set.head(5))
