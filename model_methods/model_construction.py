@@ -475,4 +475,4 @@ def apply_model(args, input_data=None):
             # Calculate the accuracy and loss values for the test dataset.
             model_output = sess.run([output_layer], feed_dict={inputs: input_data, })
 
-    return model_output
+    return model_output[0]
