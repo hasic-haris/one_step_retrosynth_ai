@@ -22,7 +22,7 @@ The following base libraries were used for the realization of the project:
 
 * python: 3.6.10
 * tensorflow-gpu: 1.12.0
-* rdkit: 2018.03.3.0
+* rdkit: 2020.03.3.0
 * numpy: 1.16.0 (NOTE: This version is preferred to avoid annoying TF warnings.)
 * pandas: 1.1.3
 
