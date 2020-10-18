@@ -28,8 +28,10 @@
     "max_epochs": 200,
     "batch_size": 128,
     "early_stopping": 10,
+
     "input_layer": {"size": 1024},
     "output_layer": {"size": 11, "activation_fcn":  "tf.nn.softmax"},
+
     "hidden_layers":
     [
       {"types": ["fcl"], "sizes": [1024], "activation_fcns": ["tf.nn.relu"], "dropouts":  [0.33]},

@@ -37,7 +37,14 @@ python -m scripts.train_model config.json
 All of the hyper-parameters are specified in the configuration. 
 
 #### 3. Full Pipeline Application
-TBD.
+(NOTE: Still under construction. Requires some parameter updates and cosmetics.) 
+
+The full single-step retrosynthesis pipeline can be assessed by running the following command:
+
+```shell script
+python -m scripts.run_evaluation config.json
+```
+All of the hyper-parameters are specified in the configuration. 
 
 ### Requirements
 The following main libraries were used for the realization of the project:

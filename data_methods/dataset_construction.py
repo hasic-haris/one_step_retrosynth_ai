@@ -520,7 +520,7 @@ def create_final_evaluation_dataset(args):
     final_data_tuples = []
 
     # Iterate through the test dataset and generate the necessary data.
-    for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index),
+    for row_ind, row in tqdm(test_dataset.iterrows(), total=len(test_dataset.index), ascii=True,
                              desc="Generating the non-filtered version of the test dataset"):
         # Select only the products from the reaction SMILES.
         _, _, products = parse_reaction_roles(row["reaction_smiles"], as_what="mol_no_maps")
@@ -531,42 +531,68 @@ def create_final_evaluation_dataset(args):
         # Iterate through all of the product molecules and generate descriptors for each bond.
         for p_ind, product in enumerate(products):
             for bond in product.GetBonds():
+                # Specify the current bond atoms and their extended neighbourhood.
+                bond_atoms = {bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()}
+                ext_bond_atoms = get_atom_environment(bond_atoms, product)
+
                 if args.evaluation_config.best_input_config["type"] == "ecfp":
                     bond_fp = construct_ecfp(product, radius=args.evaluation_config.best_input_config["radius"],
                                              bits=args.evaluation_config.best_input_config["bits"],
-                                             from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
-                                             output_type="np_array", as_type="np_float")
+                                             from_atoms=bond_atoms, output_type="np_array", as_type="np_float")
+
+                    ext_bond_fp = construct_ecfp(product, radius=args.evaluation_config.best_input_config["radius"],
+                                                 bits=args.evaluation_config.best_input_config["bits"],
+                                                 from_atoms=ext_bond_atoms, output_type="np_array",
+                                                 as_type="np_float")
                 else:
                     bond_fp = construct_hsfp(product, radius=args.evaluation_config.best_input_config["radius"],
                                              bits=args.evaluation_config.best_input_config["bits"],
-                                             from_atoms=[bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()],
+                                             from_atoms=bond_atoms,
                                              neighbourhood_ext=args.evaluation_config.best_input_config["ext"])
 
+                    ext_bond_fp = construct_hsfp(product, radius=args.evaluation_config.best_input_config["radius"],
+                                                 bits=args.evaluation_config.best_input_config["bits"],
+                                                 from_atoms=ext_bond_atoms,
+                                                 neighbourhood_ext=args.evaluation_config.best_input_config["ext"])
+
                 # If the current bond is part of the core, add that information to the new dataset.
-                if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] and \
+                if bond.GetBeginAtomIdx() in products_reaction_cores[p_ind] or \
                         bond.GetEndAtomIdx() in products_reaction_cores[p_ind]:
                     in_core = True
                 else:
                     in_core = False
 
                 # Generate the necessary additional information.
-                reactive_part, non_reactive_part = extract_info_from_molecule(product, [bond.GetBeginAtomIdx(),
-                                                                                        bond.GetEndAtomIdx()])
-                reactive_fps = [construct_ecfp(rp_mol, radius=args.descriptor_config.similarity_search["radius"],
-                                               bits=args.descriptor_config.similarity_search["bits"])
-                                for rp_mol in reactive_part[2]]
+                reactive_part, non_reactive_part = extract_info_from_molecule(product, bond_atoms)
+                ext_reactive_part, ext_non_reactive_part = extract_info_from_molecule(product, ext_bond_atoms)
+
+                #reactive_fps = [construct_ecfp(rp_mol, radius=args.descriptor_config.similarity_search["radius"],
+                #                               bits=args.descriptor_config.similarity_search["bits"])
+                #                for rp_mol in reactive_part[2]]
+                #ext_reactive_fps = [construct_ecfp(rp_mol, radius=args.descriptor_config.similarity_search["radius"],
+                #                                   bits=args.descriptor_config.similarity_search["bits"])
+                #                    for rp_mol in ext_reactive_part[2]]
+
                 non_reactive_fps = [construct_ecfp(nrp_mol, radius=args.descriptor_config.similarity_search["radius"],
                                                    bits=args.descriptor_config.similarity_search["bits"])
                                     for nrp_mol in non_reactive_part[2]]
+                ext_non_reactive_fps = [construct_ecfp(nrp_mol,
+                                                       radius=args.descriptor_config.similarity_search["radius"],
+                                                       bits=args.descriptor_config.similarity_search["bits"])
+                                        for nrp_mol in ext_non_reactive_part[2]]
 
-                final_data_tuples.append((row["patent_id"], bond.GetIdx(), bond_fp, in_core, reactive_part[0],
-                                          reactive_part[2], reactive_part[3], reactive_fps, non_reactive_part[0],
-                                          non_reactive_part[2], non_reactive_part[2], non_reactive_fps,
-                                          row["reaction_smiles"], row["reaction_class"], row["reactants_uq_mol_maps"]))
+                final_data_tuples.append((row["patent_id"] + "_{}".format(row_ind), bond.GetIdx(), bond_atoms, bond_fp,
+                                          ext_bond_atoms, ext_bond_fp, in_core, products_reaction_cores,
+                                          #reactive_part[0], reactive_part[2], reactive_part[3], reactive_fps,
+                                          non_reactive_part[0], non_reactive_part[2], non_reactive_part[3], non_reactive_fps,
+                                          ext_non_reactive_part[0], ext_non_reactive_part[2], ext_non_reactive_part[3], ext_non_reactive_fps,
+                                          row["reaction_smiles"], row["reaction_class"] if in_core else 0,
+                                          row["reactants_uq_mol_maps"]))
 
     # Save the final evaluation dataset as a .pkl file.
-    pd.DataFrame(final_data_tuples, columns=["patent_id", "bond_id", "bond_fp", "is_core", "reactive_smiles",
-                                             "reactive_smols", "reactive_smals", "reactive_fps", "non_reactive_smiles",
-                                             "non_reactive_smols", "non_reactive_smals", "non_reactive_fps",
+    pd.DataFrame(final_data_tuples, columns=["patent_id", "bond_id", "bond_atoms", "bond_fp", "ext_bond_atoms", "ext_bond_fp", "in_core", "reaction_cores",
+                                             # "reactive_smiles", "reactive_smols", "reactive_smals", "reactive_fps",
+                                             "non_reactive_smiles", "non_reactive_smols", "non_reactive_smals", "non_reactive_fps",
+                                             "ext_non_reactive_smiles", "ext_non_reactive_smols", "ext_non_reactive_smals", "ext_non_reactive_fps",
                                              "reaction_smiles", "reaction_class", "reactants_uq_mol_maps"])\
-        .to_pickle(args.dataset_config.output_folder + "final_evaluation_dataset.pkl")
+        .to_pickle(args.evaluation_config.final_evaluation_dataset)

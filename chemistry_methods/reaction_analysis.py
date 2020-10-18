@@ -295,7 +295,11 @@ def extract_synthons_from_product(product_mol, reactive_atoms):
                             editable_mol.ReplaceAtom(bond.GetEndAtomIdx(), AllChem.Atom("*"))
 
                 # Remove all bonds that were replaced with the wildcard atom '*'.
-                remove_marked_bonds(editable_mol)
+                # If this also fails because of wrongly marked AROMATIC, return default molecule.
+                try:
+                    remove_marked_bonds(editable_mol)
+                except:
+                    editable_mol = deepcopy(default_editable_mol)
 
     # Return the editable RDKit RWMol object after the changes have been made.
     return editable_mol
