@@ -32,7 +32,7 @@ def generate_unique_compound_pools(args):
 
     # Iterate through the chemical reaction entries and generate unique canonical SMILES reactant and product pools.
     # Reagents are skipped in this research.
-    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index),
+    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index), ascii=True,
                              desc="Generating unique reactant and product compound representations"):
         # Extract and save the canonical SMILES from the reaction.
         reactants, _, products = parse_reaction_roles(row["rxn_smiles"], as_what="canonical_smiles_no_maps")
@@ -49,7 +49,7 @@ def generate_unique_compound_pools(args):
         [product_reaction_class.append(row["class"]) for _ in products]
 
     # Aggregate the saved reaction classes for the same reactant compounds.
-    for reactant_ind, reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles),
+    for reactant_ind, reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles), ascii=True,
                                        desc="Aggregating reaction class values for the reactant compounds"):
         if type(reactant_reaction_class[reactant_ind]) == set:
             continue
