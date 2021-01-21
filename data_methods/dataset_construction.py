@@ -61,7 +61,7 @@ def generate_unique_compound_pools(args):
             reactant_reaction_class[same_row_ind] = set(aggregated_class_values)
 
     # Aggregate the saved reaction classes for the same product compounds.
-    for product_ind, product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles),
+    for product_ind, product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles), ascii=True,
                                      desc="Aggregating reaction class values for the product compounds"):
         if type(product_reaction_class[product_ind]) == set:
             continue
@@ -91,7 +91,7 @@ def generate_unique_compound_pools(args):
     # Pre-generate the reactant molecular fingerprint descriptors for similarity searching purpouses.
     ecfp_1024 = []
 
-    for uqr_ind, uq_reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles),
+    for uqr_ind, uq_reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles), ascii=True,
                                      desc="Generating reactant compound fingerprints"):
         ecfp_1024.append(construct_ecfp(uq_reactant, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
@@ -108,7 +108,7 @@ def generate_unique_compound_pools(args):
     # Pre-generate the product molecular fingerprint descriptors for similarity searching purpouses.
     ecfp_1024 = []
 
-    for uqp_ind, uq_product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles),
+    for uqp_ind, uq_product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles), ascii=True,
                                     desc="Generating product compound fingerprints"):
         ecfp_1024.append(construct_ecfp(uq_product, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
@@ -213,7 +213,7 @@ def expand_reaction_dataset(args):
 
     # Iterate through all of the reactions and generate their unique molecule mapping for easier reactant retrieval in
     # the later stages of the approach.
-    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index),
+    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index), ascii=True,
                              desc="Generating unique reactant and product compound representations"):
 
         # Extract the needed values from the reaction SMILES string.
@@ -414,7 +414,7 @@ def generate_fingerprint_datasets(args):
                     mc_lab = []
 
                     # Iterate through all of the rows of each dataset.
-                    for row_ind, row in tqdm(current_dataset.iterrows(), total=len(current_dataset.index),
+                    for row_ind, row in tqdm(current_dataset.iterrows(), total=len(current_dataset.index), ascii=True,
                                              desc="Generating data for '{}' - '{}'".format(directory_name, file_name)):
 
                         # Fetch the reactive and non-reactive substructures from the products of this reaction.
@@ -462,7 +462,7 @@ def create_model_training_datasets(args):
             for data_dir in os.listdir(fold_dir_path):
                 if not data_dir.endswith(".pkl"):
                     data_dir_path = fold_dir_path + data_dir + "/"
-                    print("Reading datasets from the '{}' folder.".format("/" + fold_dir + "/" + data_dir + "/"))
+                    print("\nReading datasets from the '{}' folder.".format("/" + fold_dir + "/" + data_dir + "/"))
 
                     # Finally, iterate through all of the files in the current dataset variant folder and read the
                     # reactive and non-reactive parts.
@@ -481,8 +481,12 @@ def create_model_training_datasets(args):
 
                         # Filter the negative samples to the amount of the highest populated positive class.
                         print("Filtering negative samples for the {} set...".format(dataset_split), end="")
-                        nr_samples = sorted(Counter([np.argmax(r) for r in r_mc]).values(), reverse=True)[0]
-                        nr_fp = nr_fp[get_n_most_frequent_rows(nr_fp, nr_samples)]
+
+                        if args.dataset_config.negative_samples != "all":
+                            if args.dataset_config.negative_samples == "most_frequent_class":
+                                nr_samples = sorted(Counter([np.argmax(r) for r in r_mc]).values(), reverse=True)[0]
+                                #nr_samples = len(nr_fp)
+                                nr_fp = nr_fp[get_n_most_frequent_rows(nr_fp, nr_samples)]
 
                         # Generate the labels for the saved non-reactive fingerprints.
                         nr_bc = np.full((len(nr_fp), 1), 0, np.float)

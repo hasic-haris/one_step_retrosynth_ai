@@ -28,7 +28,7 @@ def print_early_stopping_info(current_epc, early_stop):
 
     print("\nEarly stopping activated in epoch {:2d}. Checkpoint saved.".format(current_epc + 1),
           "No improvement in validation accuracy in the last {} training steps.".format(early_stop),
-          "Reverting back to epoch {:2d}.\n".format(current_epc + 1 - early_stop))
+          "Reverting back to epoch {:2d}.\n".format(current_epc - early_stop))
 
 
 def print_training_summary(train_time, best_epc, train_loss, train_acc, val_loss, val_acc, val_roc_auc, val_map):

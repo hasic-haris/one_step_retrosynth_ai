@@ -94,6 +94,7 @@ def score_reactant_combination(candidate_combination, scoring_fcn):
 
     return reactant_ids, combination_score
 
+
 """
 def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn="similarity"):
 
@@ -107,6 +108,7 @@ def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn=
                        for candidate_combination in list(itertools.product(*reactants_candidates))],
                       key=lambda k: k[1], reverse=True)[:top_n]
 """
+
 
 def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn="similarity"):
     """ Generates combinations of potential reactant candidates. """
@@ -130,7 +132,6 @@ def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn=
                 scores[scored_combination[1]].append(set(scored_combination[0]))
 
         return [scores[k] for k in sorted(scores.keys(), reverse=True)][:top_n]
-
 
 
 def analyze_retrieved_reactants(retrieved_reactant_categories, analysis_type="general"):

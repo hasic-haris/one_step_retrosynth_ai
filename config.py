@@ -11,12 +11,17 @@ from typing import NamedTuple, Optional
 
 class DatasetsConfig(NamedTuple):
     # Full path to the input dataset .csv file which needs to contain columns: 'id', 'rxn_smiles', and 'class'.
-    raw_dataset: str
+    input_dataset: str
     # Path to a folder where intermediate and final output files are stored. Around 100 GB of disk space is recommended.
     output_folder: str
+
+
+
+
+
     # Number of folds for the n-fold cross-validation procedure.
     num_folds: int
-
+    negative_samples: str
     # The percentage of
     validation_split: dict
     # Random seed for reproducibility purpouses.

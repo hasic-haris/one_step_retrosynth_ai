@@ -1,15 +1,26 @@
 {
   "dataset_config":
   {
-    "raw_dataset": "data_source/data_processed.csv",
-    "output_folder": "/data/hhasic/ssrs_ai_output/",
+    "input_dataset": "data_source/data_processed.csv",
+    "output_folder": "/data/hhasic/project_generated_output/one_step_retrosynth_ai/",
+
+
+
+
 
     "num_folds": 5,
     "validation_split": 0.1,
     "random_seed": 101,
 
+    "negative_samples": "most_frequent_class",
+
     "final_classes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
+
+
+
+
+
 
   "descriptor_config":
   {
@@ -20,12 +31,12 @@
 
   "model_config":
   {
-    "logs_folder": "/model_methods/configurations_logs/",
+    "logs_folder": "model_methods/configurations_logs/",
     "fixed_model": 0,
     "random_seed": 101,
     "use_oversampling": "True",
     "learning_rate": 0.0005,
-    "max_epochs": 200,
+    "max_epochs": 500,
     "batch_size": 128,
     "early_stopping": 10,
 
@@ -58,6 +69,6 @@
   {
     "best_fold": 5,
     "best_input_config":  {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"},
-    "final_evaluation_dataset":  "/data/hhasic/one_step_retrosynthesis_ai/output/final_evaluation_dataset.pkl"
+    "final_evaluation_dataset":  "/data/hhasic/ssrs_ai_output/final_evaluation_dataset.pkl"
   }
 }

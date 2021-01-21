@@ -303,7 +303,7 @@ def train_model(args, specific_folds=None, specific_input_configs=None, verbose=
                     summary_writer_val.close()
 
             # Print the training process summary.
-            print_training_summary(time.time() - training_time, best_epoch, curr_train_loss, curr_train_acc,
+            print_training_summary(time.time() - training_time, best_epoch+1, curr_train_loss, curr_train_acc,
                                    val_loss_min, val_acc_max, val_auc_max, val_map_max)
 
 
