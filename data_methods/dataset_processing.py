@@ -15,6 +15,49 @@ from chemistry_methods.reactions import parse_reaction_roles
 
 class DatasetProcessing:
 
+
+    @staticmethod
+    def extract_data_from_rxn_smiles(rxn_smiles: str):
+
+        reactant_pool_smiles, product_pool_smiles, reactant_pool_mol, product_pool_mol = [], [], [], []
+
+        # Extract and save the canonical SMILES from the reaction.
+        reactants, _, products = parse_reaction_roles(rxn_smiles, as_what="canonical_smiles_no_maps")
+        [reactant_pool_smiles.append(reactant) for reactant in reactants]
+        [product_pool_smiles.append(product) for product in products]
+
+        # Extract and save the RDKit Mol objects from the reaction.
+        reactants, _, products = parse_reaction_roles(rxn_smiles, as_what="mol_no_maps")
+        [reactant_pool_mol.append(reactant) for reactant in reactants]
+        [product_pool_mol.append(product) for product in products]
+
+        return reactant_pool_smiles, product_pool_smiles, reactant_pool_mol, product_pool_mol
+
+    @staticmethod
+    def generate_something(compound_dataset, rxn_smiles_column, use_multiprocessing=True):
+
+        if use_multiprocessing:
+
+            with mp.Pool(mp.cpu_count()) as process_pool:
+                lol, lel = zip(*[(processed_entry[0], processed_entry[1]) for processed_entry in
+                                 tqdm(process_pool.imap(DatasetProcessing.extract_data_from_rxn_smiles,
+                                                        compound_dataset[rxn_smiles_column].values),
+                                      total=len(compound_dataset.index),
+                                      ascii=True, desc="Processing entries (Multiple cores)")])
+                process_pool.close()
+                process_pool.join()
+
+        else:
+            lol, lel = zip(*[(processed_entry[0], processed_entry[1]) for processed_entry in
+                             [DatasetProcessing.extract_data_from_rxn_smiles(row) for row in
+                              tqdm(compound_dataset[rxn_smiles_column].values,
+                                   ascii=True, total=len(compound_dataset.index),
+                                   desc="Processing entries (Single core)")]])
+
+        print(lol[0:5])
+        print(lel[0:5])
+        exit(0)
+
     @staticmethod
     def __generate_initial_pools(input_dataset: pd.DataFrame) -> Tuple:
 
@@ -44,17 +87,22 @@ class DatasetProcessing:
     def __merge_two_sets(set_a: set, set_b: set):
         return set_a.union(set_b)
 
+
+
+        pass
+
     @staticmethod
-    def generate_unique_compound_pools(args):
+    def generate_compound_pools_from_dataset(args):
 
-        input_dataset = pd.read_csv(args.dataset_config.input_dataset)
+        # Read the input chemical reaction dataset.
+        input_dataset = pd.read_csv(args.data_config.input_dataset_file_path)
 
-        unique_reactants_pool, unique_products_pool = DatasetProcessing.__generate_initial_pools(input_dataset)
+        # Iterate through the chemical reaction entries and generate unique canonical SMILES reactant and product pools.
+        # Reagents are skipped in this research.
+        DatasetProcessing.generate_something(input_dataset, "rxn_smiles",
+                                             use_multiprocessing=args.data_config.use_multiprocessing)
 
-        # Aggregate reaction classes for the same reactant compounds.
-        #aggregation_functions = {"mol_object": "first",
-        #                         "reaction_class": "first"}  # "reaction_class": DatasetProcessingMethods.__merge_two_sets}
-        #unique_reactants_pool = unique_reactants_pool.groupby(["canonical_smiles"]).agg(aggregation_functions)
-
-        print(unique_reactants_pool)
-        print(unique_products_pool)
+        # 1. Read the dataset.
+        # 2. Extract data from each reaction SMILES string
+        # 3. Aggregate the rows based on the target molecule and reaction classes.
+        # 4. Generate the ECFP4 for each entry.

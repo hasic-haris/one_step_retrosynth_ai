@@ -1,11 +1,14 @@
 {
-  "dataset_config":
+  "data_config":
   {
-    "input_dataset": "data_source/data_processed.csv",
-    "output_folder": "/data/hhasic/project_generated_output/one_step_retrosynth_ai/",
+    "input_dataset_file_path": "data_source/data_processed.csv",
+    "input_dataset_file_extension": ".csv",
+    "input_dataset_file_separator": ",",
+    "reaction_smiles_column": "rxn_smiles",
+    "reaction_class_column": "class",
+    "output_folder_path": "/data/hhasic/project_generated_output/one_step_retrosynth_ai/",
 
-
-
+    "use_multiprocessing": true,
 
 
     "num_folds": 5,

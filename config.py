@@ -1,21 +1,26 @@
-"""
-Author:      Haris Hasic, Phd Student @ Ishida Laboratory, Department of Computer Science, Tokyo Institute of Technology
-Created on:  October 4th, 2020
-Description: This script encapsulates all of the configuration parameters as a Python Class.
-"""
-
 import json
 from argparse import ArgumentParser
 from typing import NamedTuple, Optional
 
 
-class DatasetsConfig(NamedTuple):
-    # Full path to the input dataset .csv file which needs to contain columns: 'id', 'rxn_smiles', and 'class'.
-    input_dataset: str
-    # Path to a folder where intermediate and final output files are stored. Around 100 GB of disk space is recommended.
-    output_folder: str
+class DataConfig(NamedTuple):
+    """ Description: Class containing all of the necessary configuration parameters for data pre-processing. """
 
+    # The path to the input dataset file which contains the chemical reactions.
+    input_dataset_file_path: str
+    # The extension of the input dataset file.
+    input_dataset_file_extension: str
+    # The separator of the input dataset file.
+    input_dataset_file_separator: str
+    # The name of the column containing the reaction SMILES strings in the input dataset file.
+    reaction_smiles_column: str
+    # The name of the column containing the reaction class label in the input dataset file.
+    reaction_class_column: str
+    # The path where all pre-processed dataset files should be saved.
+    output_folder_path: str
 
+    # The flag whether to use multi-processing or not.
+    use_multiprocessing: bool
 
 
 
@@ -61,7 +66,7 @@ class EvaluationConfig(NamedTuple):
 
 class FullConfig(NamedTuple):
 
-    dataset_config: DatasetsConfig
+    data_config: DataConfig
     descriptor_config: DescriptorConfig
     model_config: ModelConfig
     evaluation_config: EvaluationConfig
@@ -77,11 +82,11 @@ class FullConfig(NamedTuple):
         with open(file_path) as read_handle:
             settings = json.load(read_handle)
 
-            if "dataset_config" not in settings or "descriptor_config" not in settings or \
-                    "model_config" not in settings:
+            if "data_config" not in settings or "descriptor_config" not in settings or "model_config" not in settings \
+                    or "evaluation_config" not in settings:
                 raise ValueError("Mandatory setting groups are missing from the configuration file.")
 
-            return cls(dataset_config=DatasetsConfig(**settings["dataset_config"]),
+            return cls(data_config=DataConfig(**settings["data_config"]),
                        descriptor_config=DescriptorConfig(**settings["descriptor_config"]),
                        model_config=ModelConfig(**settings["model_config"]),
                        evaluation_config=EvaluationConfig(**settings["evaluation_config"]))
