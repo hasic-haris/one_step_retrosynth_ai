@@ -1,20 +1,22 @@
 ## Single-step Retrosynthesis Prediction based on the Identification of Potential Disconnection Sites using Molecular Substructure Fingerprints
-**UPDATE 2020/11/4**: A novel, template-free approach for the one-step retrosynthesis task described in a journal paper 
-which is currently undergoing some revisions. Depending on the final journal decision, the link to the published article
-will be posted here.
+**Article Link**: https://pubs.acs.org/doi/full/10.1021/acs.jcim.0c01100
+**Authors**: Haris Hasic and Takashi Ishida (Ishida Laboratory @ Tokyo Institute of Technology)
 
-**Authors**: Haris Hasic and Takashi Ishida (Tokyo Institute of Technology)
+
+### Note to Users
+This repository is still under construction in the sense that it requires a few more updates in terms of (memory and 
+execution) efficiency, and, of course, user-friendliness. The authors are currently working on developing 
+multi-processing support, and the usage of PyTorch models since TensorFlow 1.12. is a bit deprecated. The main 
+functionalities, however, are available as scripts, which is described later in this file. It is important to mention 
+that there is still a high possibility of encountering bugs and that some parts do not work well. Once everything that 
+is planned is fully integrated, this note will be removed.
 
 
 ### Running the Code
-**NOTE TO USERS**: This repository is still under construction in the sense that it requires a few more updates to be 
-easily understandable and reproducible. The main functionalities, however, are available to be ran as scripts, which is 
-described later in this file. It is important to mention that there is still a high possibility of encountering bugs
-and that some parts do not work well. If you do encounter some problems, feel free to raise issues on this repository.   
+The code can be used by following the next 5 steps:
 
-
-#### Installation
-The necessary Python environment can be set-up using ```conda``` by simply running:
+#### 1. Environment Setup
+Initially, a Python environment needs to be set up. This can be easily done with ```conda``` by simply running:
 
 ```shell script
 conda env create -f environment.yml
@@ -23,13 +25,13 @@ conda env create -f environment.yml
 conda activate one_step_retrosynth_ai
 ```
 
-If you encounter errors or conflicts for whatever reason, you can manually re-construct the environment.
-The following base libraries were used for the realization of the project:
+If you encounter errors or conflicts for whatever reason, you can manually re-construct the environment. The following 
+base libraries were used for the realization of the project:
 
 * python: 3.6.10
 * tensorflow-gpu: 1.12.0
 * rdkit: 2020.03.3.0
-* numpy: 1.16.0 (NOTE: This version is preferred to avoid annoying TF warnings.)
+* numpy: 1.16.0 (NOTE: This version is preferred to avoid TensorFlow warnings.)
 * pandas: 1.1.3
 
 Additional libraries that are necessary for the code to be fully functional are:
@@ -42,57 +44,57 @@ Additional libraries that are necessary for the code to be fully functional are:
 
 Everything else will be installed automatically as requirements for the base libraries.
 
+#### 2. Configuration
+The general configuration of each step is stored in the `config.json` file, which consists of four main sections:
 
-#### Configuration
-The general configuration of each step is stored in the ```config.json``` file, which consists of four main sections:
-
-1. **dataset_config** - This section contains parameters which are related to the initial dataset processing. In order 
-to initially run the code, please change the input _output_folder_ path to a folder with enough disk space where the 
-output files can be generated. The needed output disk space is approximately less than 100GB.
+1. **dataset_config** - This section contains parameters which are related to the initial dataset processing. In order
+   to initially run the code, please change the input `output_folder` path to a folder with enough disk space where the 
+   output files can be generated. The needed output disk should be less than approx. 100 GB.
 2. **descriptor_config** - This section contains parameters which are related to the generation of all molecular 
-fingerprint descriptors. In order to initially run the code, no changes are needed. 
+   fingerprint descriptors. In order to initially run the code, no changes are needed. 
 3. **model_config** - This section contains parameters which are related to the model architecture. In order to 
-initially run the code, no changes are needed since the logs will be generated in the project folder.
-4. **evaluation_config** - This section contains parameters which are related to the final evaluation of the method. In
-order to initially run the code, please change the input _final_evaluation_dataset_ path to the generated evaluation
-dataset. The default values is the combination of _output_folder_ and _final_evaluation_dataset.pkl_.
+   initially run the code, no changes are needed since the logs will be generated in the project folder.
+4. **evaluation_config** - This section contains parameters which are related to the final evaluation of the method. In 
+   order to initially run the code, please change the input `final_evaluation_dataset` path to the generated evaluation 
+   dataset. The default value is the combination of the `output_folder` parameter value, and the 
+   `final_evaluation_dataset.pkl` string.
 
-
-#### 1. Dataset Preparation
+#### 3. Dataset Preparation
 _**WARNING:** This part of the code is currently running on CPU only, and it requires a decent amount of resources to 
-reproduce quickly. Main bottlenecks are RAM (up to ~80GB) and output disk space (up to ~100GB). This is due to the large
-amount of 1024-bit fingerprints being handled. If you do not have that kind of hardware available, please feel free to
-modify the `dataset_construction.py` functions which deal with the filtering of the non-reactive fingerprints, which is
-the part of the code that requires the most amount of resources. If this is done, you can run this code easily on any 
-computer with limited resources. Of course, the multiprocessing version of this code will be added later, since it is
-currently not that big of a priority for the authors._ 
+reproduce quickly. Main bottlenecks are RAM (up to ~80 GB) and output disk space (up to ~100 GB). This is due to the 
+large amount of 1024-bit fingerprints being handled. If you do not have that kind of hardware available, please feel 
+free to modify the `dataset_construction.py` functions which deal with the filtering of the non-reactive fingerprints, 
+which is the part of the code that requires the most amount of resources. If this is done, you can run this code easily
+on any computer with limited resources. Of course, the multiprocessing version of this code will be added later, since 
+it is currently not that big of a priority for the authors._ 
 
 The [starting dataset](https://github.com/connorcoley/retrosim/blob/master/retrosim/data/data_processed.csv) is now 
-included in the repository and the pre-processed version be generated by running the following command:
+included in the repository, and the pre-processed version be generated by running the following command:
 
 ```shell script
 python -m scripts.prepare_dataset config.json
 ```
-The process consists out of 5 steps and the final dataset is saved in the _output_folder_ specified in the configuration. 
 
-#### 2. Model Training
-The specified model can be trained and assessed by running the following command:
+The process consists out of 5 steps, and the final dataset is saved in the `output_folder` specified in the configuration. 
+
+#### 4. Model Training
+The described models can be trained and assessed by running the following command:
 
 ```shell script
 python -m scripts.train_model config.json
 ```
-All of the hyper-parameters are specified in the configuration. 
 
-#### 3. Full Pipeline Application
-_WARNING: Still under construction in the sense that it requires additional parameter updates and cosmetics. Main 
-functionality should work correctly._
+All the hyper-parameters are specified in the `model_config` section of the configuration. 
 
+#### 5. Running the Full Pipeline
 The full single-step retrosynthesis pipeline can be assessed by running the following command:
 
 ```shell script
 python -m scripts.run_evaluation config.json
 ```
-All of the hyper-parameters are specified in the configuration.
+
+All the hyper-parameters are specified in the `evaluation_config` section of the configuration.
+
 
 ### Contact
 For any questions and inquiries please feel free to [contact](mailto:hasic@cb.cs.titech.ac.jp) the authors.
