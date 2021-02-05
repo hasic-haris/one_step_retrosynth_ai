@@ -8,7 +8,7 @@
     "reaction_class_column": "class",
     "output_folder_path": "/data/hhasic/project_generated_output/one_step_retrosynth_ai/",
 
-    "use_multiprocessing": true,
+    "use_num_cores": 1,
 
 
     "num_folds": 5,

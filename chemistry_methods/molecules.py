@@ -66,7 +66,7 @@ def remove_mapping(mol):
 
     # If it is a RDKit Mol object, set all of the atom map number values to 0.
     if not isinstance(mol, str):
-        mol = AllChem.MolToSmiles(mol)
+        #mol = AllChem.MolToSmiles(mol)
         for atom in mol.GetAtoms():
             atom.SetAtomMapNum(0)
         return mol

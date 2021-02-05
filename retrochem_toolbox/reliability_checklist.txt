@@ -1,0 +1,13 @@
+RetroChem Toolbox Migration:
+------------------------------------------------
+1.  drawing.py             -->  DONE  -->    0%
+2.  editable_molecules.py  -->        -->    0%
+3.  fingerprints.py        -->  DONE  -->    0%
+4.  molecules.py           -->  DONE  -->    0%
+5.  reaction_analysis.py   -->        -->    0%
+6.  reaction_cores.py      -->  DONE  -->    0%
+7.  reactions.py           -->  DONE  -->    0%
+8.  other_general          -->  DONE  -->    0%
+9.  other_structure        -->  DONE  -->    0%
+10. other_mapping          -->  DONE  -->    0%
+------------------------------------------------

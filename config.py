@@ -20,7 +20,7 @@ class DataConfig(NamedTuple):
     output_folder_path: str
 
     # The flag whether to use multi-processing or not.
-    use_multiprocessing: bool
+    use_num_cores: int
 
 
 
