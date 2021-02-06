@@ -19,7 +19,8 @@ print("\nStep 1/5: Generate unique compound pools for the reactants and products
 generate_unique_compound_pools(full_config)
 
 print("\nStep 2/5: Expand the original dataset with additional, useful information.\n")
-# NOTE: This step might produce a lot of RDKit warnings. They can be ignored since I didn't manage to turn them off.
+# NOTE: This step usually produces a lot of RDKit warnings because of the editable molecule operations going on in the
+#       background. They can be ignored since they seemingly can't be turned off.
 expand_reaction_dataset(full_config)
 
 print("\nStep 3/5: Split the dataset for n-fold cross validation sets for training, validation and testing.\n")

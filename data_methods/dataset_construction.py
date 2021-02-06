@@ -96,7 +96,7 @@ def generate_unique_compound_pools(args):
         ecfp_1024.append(construct_ecfp(uq_reactant, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
 
-    print("Saving the processed reactant compound data...", end="")
+    print("Saving the processed reactant compound data...", end="", flush=True)
 
     # Store all of the generated reactant fingerprints in a .pkl file.
     pd.DataFrame({"mol_id": list(range(0, len(reactant_pool_smiles))), "canonical_smiles": reactant_pool_smiles,
@@ -113,7 +113,7 @@ def generate_unique_compound_pools(args):
         ecfp_1024.append(construct_ecfp(uq_product, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
 
-    print("Saving the processed product compound data...", end="")
+    print("Saving the processed product compound data...", end="", flush=True)
 
     # Store all of the generated product fingerprints in a .pkl file.
     pd.DataFrame({"mol_id": list(range(0, len(product_pool_smiles))), "canonical_smiles": product_pool_smiles,
@@ -213,7 +213,7 @@ def expand_reaction_dataset(args):
 
     # Iterate through all of the reactions and generate their unique molecule mapping for easier reactant retrieval in
     # the later stages of the approach.
-    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index),
+    for row_ind, row in tqdm(raw_dataset.iterrows(), total=len(raw_dataset.index), ascii=True,
                              desc="Generating unique reactant and product compound representations"):
 
         # Extract the needed values from the reaction SMILES string.
@@ -246,7 +246,7 @@ def expand_reaction_dataset(args):
         raw_dataset.at[row_ind, "products_non_reactive_smals"] = pnsa
         raw_dataset.at[row_ind, "products_non_reactive_fps"] = pnsf
 
-    print("Saving the generated compound data...", end="")
+    print("Saving the generated compound data...", end="", flush=True)
 
     # Save the final reaction dataset as in .pkl or .csv format.
     raw_dataset.to_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
@@ -275,7 +275,7 @@ def generate_dataset_splits(args):
 
     # Generate training and validation data and save all of the datasets.
     for fold_index, test_indices in enumerate(folds):
-        print("Generating data for fold {}...".format(fold_index + 1), end="")
+        print("Generating data for fold {}...".format(fold_index + 1), end="", flush=True)
 
         # If a fold directory does nto exist for a specific fold, create it.
         directory_path = args.dataset_config.output_folder + "fold_{}/".format(fold_index + 1)
@@ -414,7 +414,7 @@ def generate_fingerprint_datasets(args):
                     mc_lab = []
 
                     # Iterate through all of the rows of each dataset.
-                    for row_ind, row in tqdm(current_dataset.iterrows(), total=len(current_dataset.index),
+                    for row_ind, row in tqdm(current_dataset.iterrows(), total=len(current_dataset.index), ascii=True,
                                              desc="Generating data for '{}' - '{}'".format(directory_name, file_name)):
 
                         # Fetch the reactive and non-reactive substructures from the products of this reaction.
@@ -480,7 +480,7 @@ def create_model_training_datasets(args):
                                 r_mc = pd.read_pickle(data_dir_path + file_name).values
 
                         # Filter the negative samples to the amount of the highest populated positive class.
-                        print("Filtering negative samples for the {} set...".format(dataset_split), end="")
+                        print("Filtering negative samples for the {} set...".format(dataset_split), end="", flush=True)
                         nr_samples = sorted(Counter([np.argmax(r) for r in r_mc]).values(), reverse=True)[0]
                         nr_fp = nr_fp[get_n_most_frequent_rows(nr_fp, nr_samples)]
 
@@ -492,7 +492,7 @@ def create_model_training_datasets(args):
                         print("done.")
 
                         # Aggregate the reactive and non-reactive fingerprints.
-                        print("Aggregating and saving the data for the {} set...".format(dataset_split), end="")
+                        print("Aggregating and saving {} set data...".format(dataset_split), end="", flush=True)
 
                         x_fp = np.vstack((r_fp, nr_fp))
                         pd.to_pickle(pd.DataFrame(x_fp), data_dir_path + "x_{}.pkl".format(dataset_split))
@@ -500,14 +500,14 @@ def create_model_training_datasets(args):
                         print("done. Shape: {}".format(str(x_fp.shape)))
 
                         # Aggregate the reactive and non-reactive labels.
-                        print("Aggregating and saving the labels for the {} set...".format(dataset_split), end="")
+                        print("Aggregating and saving {} set labels...".format(dataset_split), end="", flush=True)
 
                         y_bc = np.vstack((r_bc, nr_bc))
                         pd.to_pickle(pd.DataFrame(y_bc), data_dir_path + "y_bc_{}.pkl".format(dataset_split))
                         y_mc = np.vstack((r_mc, nr_mc))
                         pd.to_pickle(pd.DataFrame(y_mc), data_dir_path + "y_mc_{}.pkl".format(dataset_split))
 
-                        print("done. Shapes: {} and {}".format(str(y_mc.shape), str(y_bc.shape)))
+                        print("done. Shapes: {} and {}.".format(str(y_mc.shape), str(y_bc.shape)))
 
 
 def create_final_evaluation_dataset(args):
