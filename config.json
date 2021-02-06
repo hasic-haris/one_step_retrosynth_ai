@@ -2,7 +2,7 @@
   "dataset_config":
   {
     "raw_dataset": "data_source/data_processed.csv",
-    "output_folder": "/data/hhasic/ssrs_ai_output/",
+    "output_folder": "/data/hhasic/project_generated_output/one_step_retrosynth_ai/",
 
     "num_folds": 5,
     "validation_split": 0.1,
@@ -58,6 +58,6 @@
   {
     "best_fold": 5,
     "best_input_config":  {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"},
-    "final_evaluation_dataset":  "/data/hhasic/one_step_retrosynthesis_ai/output/final_evaluation_dataset.pkl"
+    "final_evaluation_dataset":  "/data/hhasic/project_generated_output/one_step_retrosynthesis_ai/final_evaluation_dataset.pkl"
   }
 }

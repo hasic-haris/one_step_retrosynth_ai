@@ -61,7 +61,7 @@ def generate_unique_compound_pools(args):
             reactant_reaction_class[same_row_ind] = set(aggregated_class_values)
 
     # Aggregate the saved reaction classes for the same product compounds.
-    for product_ind, product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles),
+    for product_ind, product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles), ascii=True,
                                      desc="Aggregating reaction class values for the product compounds"):
         if type(product_reaction_class[product_ind]) == set:
             continue
@@ -91,7 +91,7 @@ def generate_unique_compound_pools(args):
     # Pre-generate the reactant molecular fingerprint descriptors for similarity searching purpouses.
     ecfp_1024 = []
 
-    for uqr_ind, uq_reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles),
+    for uqr_ind, uq_reactant in tqdm(enumerate(reactant_pool_smiles), total=len(reactant_pool_smiles), ascii=True,
                                      desc="Generating reactant compound fingerprints"):
         ecfp_1024.append(construct_ecfp(uq_reactant, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
@@ -108,7 +108,7 @@ def generate_unique_compound_pools(args):
     # Pre-generate the product molecular fingerprint descriptors for similarity searching purpouses.
     ecfp_1024 = []
 
-    for uqp_ind, uq_product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles),
+    for uqp_ind, uq_product in tqdm(enumerate(product_pool_smiles), total=len(product_pool_smiles), ascii=True,
                                     desc="Generating product compound fingerprints"):
         ecfp_1024.append(construct_ecfp(uq_product, radius=args.descriptor_config.similarity_search["radius"],
                                         bits=args.descriptor_config.similarity_search["bits"]))
