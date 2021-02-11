@@ -1,12 +1,23 @@
-import indigo as indigo
+from indigo import Indigo
 
-# TODO: Implement the mapping functionality.
-#mol1 = indigo.loadMolecule("c1ccccc1")
-#mol2 = indigo.loadMolecule("ON")
 
-#rxn = indigo.createReaction()
-#rxn.addReactant(mol1)
-#rxn.addReactant(mol2)
-#rxn.addProduct(indigo.loadMolecule("ClC1CCCCC1"))
+def indigo_atom_map_reaction(rxn_smiles: str, timeout_period: int, existing_mapping="discard", verbose=False):
 
-#print(rxn)
+    try:
+        # Instantiate the Indigo class object and set the timeout period.
+        indigo_mapper = Indigo()
+        indigo_mapper.setOption("aam-timeout", timeout_period)
+
+        # Return the atom mapping of the reaction SMILES string.
+        rxn = indigo_mapper.loadReaction(rxn_smiles)
+        rxn.automap(existing_mapping)
+
+        return rxn.smiles()
+
+    # If an exception occurs for any reason, print the message if indicated, and return None.
+    except Exception as exception:
+        if verbose:
+            print(
+                "Exception occured during atom mapping of the reaction SMILES. Detailed message: {}".format(exception))
+
+        return None

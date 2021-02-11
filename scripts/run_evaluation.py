@@ -9,10 +9,10 @@ from config import FullConfig
 from reactant_retrieval_and_scoring.reactant_retrieval_and_scoring import benchmark_reactant_candidate_retrieval
 from data_methods.dataset_construction import create_final_evaluation_dataset
 from reactant_retrieval_and_scoring.reactant_retrieval_and_scoring import complete_and_score_suggestions
-from single_step_retrosynthesis.single_step_retrosynthesis import bulk_analyze_disconnection_suggestions
+from reactant_retrieval_and_scoring.reactant_retrieval_and_scoring import bulk_analyze_disconnection_suggestions
 
 
-full_config = FullConfig.load("config.json")
+full_config = FullConfig.load()
 
 # print("\nOptional Step: Run a benchmark for the reactant retrieval and scoring process.\n")
 # benchmark_reactant_candidate_retrieval(full_config)

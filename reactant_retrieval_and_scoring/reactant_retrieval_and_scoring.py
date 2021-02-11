@@ -43,12 +43,6 @@ def complete_synthons(synthon_mol, synthon_fp, reactant_search_pool, reactant_id
     sim_indices = sorted([(sim_ind, sim_val) for sim_ind, sim_val in enumerate(similarity_values)
                           if sim_val >= cut_off], key=lambda k: k[1], reverse=True)
 
-    # If the cut-off values left the list of indices empty, it implies that the fragment is too small to find any
-    # significant reactant match. Because of that, go through the list of frequent small molecule reactants from each
-    # class and find the best fitting option.
-    # if len(sim_indices) == 0:
-    #    sim_indices =
-
     # Return the Top-N candidates based on the applied metric, regardless of substructure matching.
     if fetch_priority == "similar":
         return [(id_search_pool[sim_ind[0]], sim_ind[1]) for sim_ind in sim_indices][:top_n]
@@ -94,19 +88,6 @@ def score_reactant_combination(candidate_combination, scoring_fcn):
 
     return reactant_ids, combination_score
 
-"""
-def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn="similarity"):
-
-    # If only one reactant is suggested, just transform the data into the proper format.
-    if len(reactants_candidates) == 1:
-        return [([candidate[0]], candidate[1]) for candidate in reactants_candidates[0]][:top_n]
-
-    # If the more than one reactant is suggested, generate all possible combinations.
-    else:
-        return sorted([score_reactant_combination(candidate_combination, scoring_fcn=scoring_fcn)
-                       for candidate_combination in list(itertools.product(*reactants_candidates))],
-                      key=lambda k: k[1], reverse=True)[:top_n]
-"""
 
 def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn="similarity"):
     """ Generates combinations of potential reactant candidates. """
@@ -130,7 +111,6 @@ def generate_candidate_combinations(reactants_candidates, top_n=50, scoring_fcn=
                 scores[scored_combination[1]].append(set(scored_combination[0]))
 
         return [scores[k] for k in sorted(scores.keys(), reverse=True)][:top_n]
-
 
 
 def analyze_retrieved_reactants(retrieved_reactant_categories, analysis_type="general"):
@@ -230,12 +210,10 @@ def benchmark_reactant_candidate_retrieval(args):
             mol_pos_dict[synthon_ind+1].append(position)
 
         # Find out the actual combination position.
-        #combination_positions = [c[0] for c in generate_candidate_combinations(suggested_combination, top_n=50)]
         combination_positions = generate_candidate_combinations(suggested_combination, top_n=50)
         combination_position = -1
 
         for c_ind, combination in enumerate(combination_positions):
-            #if set(combination) == set(synthon_maps):
             if set(synthon_maps) in combination:
                 combination_position = c_ind
                 break
@@ -283,7 +261,7 @@ def complete_and_score_suggestions(args):
                                                      if reaction_class in x[4]]})
 
     # Define how many molecules per position are being fetched.
-    fetch_per_position = {0: 5, 1: 20, 2: 20}
+    fetch_per_position = {0: 10, 1: 50, 2: 50}
 
     # Generate dictionaries for the evaluation of individual reactants and reactant combinations.
     mol_dict = {1: []}
@@ -324,12 +302,10 @@ def complete_and_score_suggestions(args):
             suggested_combination.append(reactant_candidates[:fetch_per_position[synthon_ind]])
 
         # Find out the actual combination position.
-        #combination_positions = [c[0] for c in generate_candidate_combinations(suggested_combination, top_n=50)]
         combination_positions = generate_candidate_combinations(suggested_combination, top_n=50)
         combination_position = -1
 
         for c_ind, combination in enumerate(combination_positions):
-            #if set(combination) == set(synthon_maps):
             if set(synthon_maps) in combination:
                 combination_position = c_ind
                 break
@@ -338,39 +314,52 @@ def complete_and_score_suggestions(args):
         mol_dict[1].append(combination_position)
         final_combination_positions.append(combination_positions)
 
-    # Analyze the retrieved reactants.
-    # analyze_retrieved_reactants(mol_dict, analysis_type="general")
-
-    # Analyze the retrieved reactant combinations based on the reaction class.
-    # analyze_retrieved_reactants(mol_class_dict, analysis_type="class")
-
-    print("Correctly classified: {}% ({}/{})".format(round(successful_pred * 100 / (successful_pred +
-                                                                                    unsuccessful_pred), 2),
-                                                     successful_pred, (successful_pred + unsuccessful_pred)))
-    print("Incorrectly classified: {}% ({}/{})".format(round(unsuccessful_pred * 100 / (successful_pred +
-                                                                                        unsuccessful_pred), 2),
-                                                       unsuccessful_pred, (successful_pred + unsuccessful_pred)))
+    print("Correctly classified: {}% ({}/{})".format(
+        round(successful_pred * 100 / (successful_pred + unsuccessful_pred), 2),
+        successful_pred,
+        (successful_pred + unsuccessful_pred)
+    ))
+    print("Incorrectly classified: {}% ({}/{})".format(
+        round(unsuccessful_pred * 100 / (successful_pred + unsuccessful_pred), 2),
+        unsuccessful_pred,
+        (successful_pred + unsuccessful_pred)
+    ))
 
     final_test_set["combination_position"] = final_combination_positions
     final_test_set.to_pickle(args.dataset_config.output_folder + "final_test.pkl")
 
-    """
-    print("Found: ")
-    print(len(final_test_set[final_test_set["combination_position"] != -1]))
-    print("Found at 1: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] == 1)]))
-    print("Found at 3: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 3)]))
-    print("Found at 5: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 5)]))
-    print("Found at 10: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 10)]))
-    print("Found at 20: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 20)]))
-    print("Found at 30: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 30)]))
-    print("Found at 50: ")
-    print(len(final_test_set[(final_test_set["combination_position"] != -1) & (final_test_set["combination_position"] <= 50)]))
-    print("Not Found: ")
-    print(len(final_test_set[final_test_set["combination_position"] == -1]))
-    """
+
+def bulk_analyze_disconnection_suggestions(args):
+    """ Returns potential disconnections in the target molecule including the chemical reaction class, real reactant
+    molecules and the probability of the reaction. """
+
+    final_data = pd.read_pickle(args.dataset_config.output_folder + "final_test.pkl")
+    top_n, length = [], []
+    patent_ids = list(set(final_data["patent_id"].values))
+
+    for pid in patent_ids:
+        min_pos = 666
+        for _, row in final_data[final_data["patent_id"] == pid].iterrows():
+            if len(row["combination_position"]) > 0:
+                for cc_ind, cc in enumerate(row["combination_position"]):
+                    if type(cc) == set and set(row["reactants_uq_mol_maps"]) == cc:
+                        if cc_ind + 1 < min_pos:
+                            min_pos = cc_ind + 1
+                            length.append(1)
+                    elif type(cc) == list and set(row["reactants_uq_mol_maps"]) in cc:
+                        if cc_ind + 1 < min_pos:
+                            min_pos = cc_ind + 1
+                            length.append(len(cc))
+
+                if min_pos == 1:
+                    break
+
+        top_n.append(min_pos)
+
+    top_n = dict(Counter(top_n))
+    agg_top_n = 0
+
+    for key in sorted(top_n.keys()):
+        agg_top_n += top_n[key]
+        if key in [1, 3, 5, 10, 20, 30, 50]:
+            print("Top-{}: {} ({:2.2f}%)".format(key, agg_top_n, (agg_top_n / sum(top_n.values())) * 100))
