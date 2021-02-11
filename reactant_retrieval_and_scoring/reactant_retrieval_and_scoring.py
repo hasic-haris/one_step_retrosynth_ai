@@ -166,7 +166,7 @@ def benchmark_reactant_candidate_retrieval(args):
     """ Tests the accuracy of the reactant retrieval approach based on fingerprint similarity on the full dataset. """
 
     # Read the dataset containing all of the chemical reactions.
-    final_reaction_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_reaction_dataset.pkl")
+    final_reaction_dataset = pd.read_pickle(args.dataset_config.output_folder + "final_training_dataset.pkl")
 
     # Read the dataset containing the unique reactant candidate molecules.
     reactant_search_pool = pd.read_pickle(args.dataset_config.output_folder + "unique_reactants_pool.pkl")

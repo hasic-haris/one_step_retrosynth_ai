@@ -12,10 +12,10 @@ from reactant_retrieval_and_scoring.reactant_retrieval_and_scoring import comple
 from single_step_retrosynthesis.single_step_retrosynthesis import bulk_analyze_disconnection_suggestions
 
 
-full_config = FullConfig.load()
+full_config = FullConfig.load("config.json")
 
-print("\nOptional Step: Run a benchmark for the reactant retrieval and scoring process.\n")
-benchmark_reactant_candidate_retrieval(full_config)
+# print("\nOptional Step: Run a benchmark for the reactant retrieval and scoring process.\n")
+# benchmark_reactant_candidate_retrieval(full_config)
 
 print("\nStep 1/3: Generate the dataset that will be used for the final evaluation of the approach.\n")
 create_final_evaluation_dataset(full_config)

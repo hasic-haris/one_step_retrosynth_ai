@@ -58,6 +58,6 @@
   {
     "best_fold": 5,
     "best_input_config":  {"type": "hsfp", "radius": 2, "bits": 1024, "ext": 2, "folder_name": "hsfp_2_2_1024"},
-    "final_evaluation_dataset":  "/data/hhasic/project_generated_output/one_step_retrosynthesis_ai/final_evaluation_dataset.pkl"
+    "final_evaluation_dataset":  "/data/hhasic/project_generated_output/one_step_retrosynth_ai/final_evaluation_dataset.pkl"
   }
 }

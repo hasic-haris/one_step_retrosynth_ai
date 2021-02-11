@@ -12,7 +12,7 @@ def bulk_analyze_disconnection_suggestions(args):
     """ Returns potential disconnections in the target molecule including the chemical reaction class, real reactant
     molecules and the probability of the reaction. """
 
-    final_data = pd.read_pickle("/data/hhasic/one_step_retrosynthesis_ai/output/final_test.pkl")
+    final_data = pd.read_pickle(args.dataset_config.output_folder + "final_test.pkl")
     top_n, length = [], []
     patent_ids = list(set(final_data["patent_id"].values))
 
