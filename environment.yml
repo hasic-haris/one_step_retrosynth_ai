@@ -1,4 +1,4 @@
-name: one_step_retrosynth_ai
+name: osra_dev
 channels:
   - rdkit
   - defaults

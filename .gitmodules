@@ -1,0 +1,3 @@
+[submodule "retrochem_toolbox"]
+	path = retrochem_toolbox
+	url = https://github.com/hasic-haris/retrochem_toolbox.git
